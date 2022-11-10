@@ -56,14 +56,14 @@ The `build.env` file must define the following environment variables:
 - `CONDA_ENV_REPO`: The URL for the repo containing conda environment definitions
 - `CONDA_ENV_REPO_HASH`: The `CONDA_ENV_REPO` hash to checkout during image build
 
-Images will be named as `<image_name>:<image_tag>`, where `image_name` is the name of the directory where `build.env` is found and `image_tag` is the first seven characters of the `CONDA_ENV_REPO_HASH`.
+Images will be named as `<image_name>:<image_tag>`, where `image_name` is the name of the directory where `build.env` is located and `image_tag` is the first seven characters of the `CONDA_ENV_REPO_HASH`.
 
 
 ### Other images
 
 Images that are not built from conda environments are defined by creating a `Dockerfile` and a `build.env` file at the path `docker/<image_name>/{Dockerfile,build.env}`.
 
-Images will be named `<image_name>:<image_tag>`, where `image_name` is the name of the directory where `build.env` and the `Dockerfile` are found, and `image_tag` is the value of `IMAGE_TAG` in the corresponding `build.env` file.
+Images will be named `<image_name>:<image_tag>`, where `image_name` is the name of the directory where `build.env` and the `Dockerfile` are located, and `image_tag` is the value of `IMAGE_TAG` in the corresponding `build.env` file.
 
 
 ## Building Docker images
