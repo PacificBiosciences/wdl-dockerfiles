@@ -1,0 +1,33 @@
+FROM ubuntu:focal AS builder
+
+RUN apt-get update && apt-get -y install \
+		git \
+	&& rm -rf /var/lib/apt/lists/*
+
+ARG CONDA_ENV_REPO
+ARG CONDA_ENV_REPO_HASH
+
+RUN git clone \
+	--recurse-submodules \
+	"${CONDA_ENV_REPO}" \
+	/opt/conda_env_repo
+WORKDIR /opt/conda_env_repo
+RUN git checkout "${CONDA_ENV_REPO_HASH}"
+
+
+FROM continuumio/miniconda3:4.12.0
+
+MAINTAINER Heather Ward <heather@dnastack.com>
+
+ARG IMAGE_NAME
+ENV IMAGE_NAME "${IMAGE_NAME}"
+ARG IMAGE_TAG
+ENV IMAGE_TAG "${IMAGE_TAG}"
+
+COPY --from=builder /opt/conda_env_repo/scripts /opt/scripts
+COPY --from=builder "/opt/conda_env_repo/rules/envs/${IMAGE_NAME}.yaml" /opt/envs/
+
+RUN conda env create --file "/opt/envs/${IMAGE_NAME}.yaml" --name "${IMAGE_NAME}"
+ENV PATH /opt/conda/envs/${IMAGE_NAME}/bin:$PATH
+
+RUN echo "source activate ${IMAGE_NAME}" >> ~/.bashrc
