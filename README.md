@@ -7,7 +7,7 @@ This repo houses definitions for the Docker images used by PacBio workflows.
 
 Docker image definitions are found in [the docker directory](docker). Docker images are split into two categories: images built from conda environments ([`docker/conda/*`](docker/conda)), which all use [the same base Dockerfile](docker/conda/Conda_dockerfile) to build images, and other images which are defined using their own Dockerfiles.
 
-Regardless of the type of docker image being built, each docker image must minimally define a [`build.env` file](#the-build.env-file).
+Regardless of the type of docker image being built, each docker image must minimally define a [`build.env` file](#the-buildenv-file).
 
 Example directory structure:
 ```
