@@ -27,9 +27,12 @@ ENV IMAGE_TAG "${IMAGE_TAG}"
 
 COPY --from=builder /opt/conda_env_repo/scripts /opt/scripts
 COPY --from=builder "/opt/conda_env_repo/rules/envs/${CONDA_ENV}.yaml" /opt/envs/
-RUN chmod +x /opt/scripts/*
+ARG ADDITIONAL_DEPENDENCIES
+RUN echo "${ADDITIONAL_DEPENDENCIES}" >> "/opt/envs/${CONDA_ENV}.yaml"
 
 RUN conda env create --file "/opt/envs/${CONDA_ENV}.yaml" --name "${CONDA_ENV}"
 ENV PATH /opt/conda/envs/${CONDA_ENV}/bin:/opt/scripts:$PATH
+
+RUN chmod +x /opt/scripts/*
 
 RUN echo "source activate ${CONDA_ENV}" >> ~/.bashrc
