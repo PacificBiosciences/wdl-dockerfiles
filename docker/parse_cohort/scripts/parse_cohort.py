@@ -63,11 +63,11 @@ def json_to_yaml(cohort_json_file, output_yaml_file):
         yaml.dump(parsed_data, f)
 
 
-def parse_trio(cohort_json_file):
+def parse_families(cohort_json_file):
     """
-    Parse trio information from a cohort.
-    Validates that i) all samples in a trio are present in the cohort; ii) exactly one trio is found in the cohort.
-    Writes the index of the child, father, and mother samples to child_, father_, and mother_index.txt.
+    Parse family/trio information from a cohort.
+    Validates that all samples in a trio are present in the cohort
+    Writes the children, father, and mother indices for each valid trio/family to families.json
     Args:
         cohort_json_file (str): Path to the cohort JSON file
     """
@@ -78,12 +78,7 @@ def parse_trio(cohort_json_file):
         for sample_index, sample in enumerate(cohort_info["samples"])
     }
 
-    if len(samples_in_cohort) > 3:
-        print(
-            "[WARN] Found more than three samples in the cohort; attempting to extract a single valid trio"
-        )
-
-    children_with_parents = []
+    trios = dict()
     for sample in cohort_info["samples"]:
         child_id = sample["sample_id"]
         father_id = sample["father_id"]
@@ -95,60 +90,35 @@ def parse_trio(cohort_json_file):
             and mother_id
             and set(samples_in_cohort.keys()).issuperset(set([father_id, mother_id]))
         ):
-            children_with_parents.append(
-                {
-                    "child": {
-                        "sample_id": child_id,
-                        "sample_index": samples_in_cohort[child_id],
-                    },
-                    "father": {
-                        "sample_id": father_id,
-                        "sample_index": samples_in_cohort[father_id],
-                    },
-                    "mother": {
-                        "sample_id": mother_id,
-                        "sample_index": samples_in_cohort[mother_id],
-                    },
+            child_index = samples_in_cohort[child_id]
+
+            parent_key = f"{father_id}_{mother_id}"
+            if parent_key in trios:
+                trios[parent_key]["child_indices"].append(child_index)
+            else:
+                father_index = samples_in_cohort[father_id]
+                mother_index = samples_in_cohort[mother_id]
+                trios[parent_key] = {
+                    "child_indices": [child_index],
+                    "father_index": father_index,
+                    "mother_index": mother_index,
                 }
-            )
 
-    if len(children_with_parents) == 0:
+    if len(trios) == 0:
         raise SystemExit(
-            "[ERROR] Expected a trio with child and both parent samples present in the cohort; missing at least one sample in the trio"
+            "[ERROR] Expected at least one trio with child and both parent samples present in the cohort; missing at least one sample in the trio"
         )
-    elif len(children_with_parents) > 1:
-        raise SystemExit(
-            f"[ERROR] Expected a single trio, but found more than one valid trio in the cohort\n{children_with_parents}"
-        )
+
     else:
-        trio_sample = children_with_parents[0]
-        print(
-            f"[INFO] Found a valid trio for child sample {trio_sample['child']['sample_id']}; father sample {trio_sample['father']['sample_id']}; mother sample {trio_sample['mother']['sample_id']}"
-        )
-        child_index = trio_sample["child"]["sample_index"]
-        father_index = trio_sample["father"]["sample_index"]
-        mother_index = trio_sample["mother"]["sample_index"]
-
-        with open("child_index.txt", "w") as f:
-            f.write(f"{child_index}\n")
-            print(f"[INFO] Wrote child index [{child_index}] to file child_index.txt")
-        with open("father_index.txt", "w") as f:
-            f.write(f"{father_index}\n")
-            print(
-                f"[INFO] Wrote father index [{father_index}] to file father_index.txt"
-            )
-        with open("mother_index.txt", "w") as f:
-            f.write(f"{mother_index}\n")
-            print(
-                f"[INFO] Wrote mother index [{mother_index}] to file mother_index.txt"
-            )
+        with open("families.json", "w+") as f:
+            json.dump(list(trios.values()), f)
 
 
 def main(args):
     if args.output_yaml_file:
         json_to_yaml(args.cohort_json, args.output_yaml_file)
-    elif args.parse_trio:
-        parse_trio(args.cohort_json)
+    elif args.parse_families:
+        parse_families(args.cohort_json)
 
 
 if __name__ == "__main__":
@@ -163,9 +133,9 @@ if __name__ == "__main__":
     options = parser.add_mutually_exclusive_group(required=True)
     options.add_argument(
         "-t",
-        "--parse_trio",
+        "--parse_families",
         action="store_true",
-        help="Validate that the cohort contains a complete trio, and output child [child_index.txt], father [father_index.txt], and mother [mother_index.txt] indices for the cohort",
+        help="Validate that the cohort contains at minimum one complete trio, and output sample indices for each valid trio in the cohort as families.json (array of valid families)",
     )
     options.add_argument(
         "-y",
