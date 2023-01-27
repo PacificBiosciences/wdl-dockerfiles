@@ -1,0 +1,9 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - pbmm2==${PBMM2_VERSION}
+  - datamash==${DATAMASH_VERSION}
+  - pysam==${PYSAM_VERSION}
+  - python=${PYTHON_VERSION}

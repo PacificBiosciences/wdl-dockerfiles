@@ -5,9 +5,9 @@ This repo houses definitions for the Docker images used by PacBio workflows.
 
 ## Directory structure
 
-Docker image definitions are found in [the docker directory](docker). Docker images are split into two categories: images built from conda environments ([`docker/conda/*`](docker/conda)), which all use [the same base Dockerfile](docker/conda/Conda_dockerfile) to build images, and other images which are defined using their own Dockerfiles.
+Docker image definitions are found in [the docker directory](docker).
 
-Regardless of the type of docker image being built, each docker image must minimally define a [`build.env` file](#the-buildenv-file).
+Each Docker image must minimally define a [`build.env` file](#the-buildenv-file).
 
 Example directory structure:
 ```
@@ -15,81 +15,84 @@ docker/
 ├── bwa_mem/
 │   ├── build.env
 │   └── Dockerfile
-├── conda/
-│   ├── Conda_dockerfile
-│   ├── smrtcells_stats/
-│   │   └── build.env
-│   └── whatshap/
-│       └── build.env
+├── Conda_dockerfile # a template dockerfile, used to build multiple images
+├── htslib/
+│   └── build.env # Uses the Conda_dockerfile
 ├── pb_human_wgs_scripts/
 │   ├── build.env
 │   └── Dockerfile
-└── samtools/
-    ├── build.env
-    ├── Dockerfile
-    └── scripts/
+├── samtools/
+│   ├── build.env
+│   ├── Dockerfile
+│   └── scripts/
+└── yak
+    └── build.env # Uses the Conda_dockerfile
 ```
 
-### The `build.env` file
 
-The build env file is a newline-delimited file containing key=value pairs for any environment variables that should be available as `--build-arg`s during Docker image build. This file must minimally define the `IMAGE_TAG` that will be used to tag the built image.
 
-For dockers built from conda environments, the `IMAGE_TAG` is derived as the first 7 characters of the `CONDA_ENV_REPO_HASH` and can be omitted.
+## The `build.env` file
 
-Example `build.env` file:
+Each target image is defined via the presence of a `build.env` file, which is used to specify the name and version tag for the corresponding Docker image. It must contain at minimum the following variables:
+
+- `IMAGE_NAME`
+- `IMAGE_TAG`
+
+All variables defined in the `build.env` file will be made available as build arguments during Docker image build.
+
+The `IMAGE_TAG` variable can be built using other variables defined in the `build.env` file, as long as those other variables are defined before `IMAGE_TAG`. For example, the following `IMAGE_TAG` would be set to `0.7.8_1.15`:
+
 ```
-IMAGE_TAG=1.14
-SAMTOOLS_VERSION=0.0.19
+# Tool verisons
+BWA_VERSION=0.7.8
+SAMTOOLS_VERSION=1.15
+
+# Image info
+IMAGE_NAME=bwa_samtools
+IMAGE_TAG=${BWA_VERSION}_${SAMTOOLS_VERSION}
 ```
 
-The `IMAGE_NAME` is also automatically made available as a build arg, and is set to the name of the directory containing the `build.env` file.
+The `Dockerfile` corresponding to a `build.env` must either:
+1. Be named `Dockerfile` and exist in the same directory as the `build.env` file, or
+2. Be specified using the `DOCKERFILE` variable in the `build.env` file (e.g. for image builds that reuse a common Dockerfile). The path to the Dockerfile should be relative to the directory containing the `build.env` file.
 
 
-### Images built from conda environments ([`docker/conda`](docker/conda))
+#### Special variables
 
-These images all use [the same base Dockerfile](docker/conda/Conda_dockerfile).
+These variables have special meanings when the Docker image is being built. † specifies that the variable is required.
 
-Each docker image built from this base Dockerfile is defined by creating a directory named `<image_name>` that contains a `build.env` file at the path `docker/conda/<image_name>/build.env`. The `image_name` will also be used as the name of the conda environment that is installed and sourced in the image.
-
-The `build.env` file must define the following environment variables:
-
-- `CONDA_ENV_REPO`: The URL for the repo containing conda environment definitions
-- `CONDA_ENV_REPO_HASH`: The `CONDA_ENV_REPO` hash to checkout during image build
-
-Images will be named as `<image_name>:<image_tag>`, where `image_name` is the name of the directory where `build.env` is located and `image_tag` is the first seven characters of the `CONDA_ENV_REPO_HASH`.
-
-
-### Other images
-
-Images that are not built from conda environments are defined by creating a `Dockerfile` and a `build.env` file at the path `docker/<image_name>/{Dockerfile,build.env}`.
-
-Images will be named `<image_name>:<image_tag>`, where `image_name` is the name of the directory where `build.env` and the `Dockerfile` are located, and `image_tag` is the value of `IMAGE_TAG` in the corresponding `build.env` file.
+- `IMAGE_NAME`†: specifies the name of the built image
+- `IMAGE_TAG`†: specifies the tag of the built image
+- `NOBUILD`: When set to `true`, skip building this image
+- `DOCKERFILE`: Specify an alternate path to a Dockerfile, relative to the `build.env` file. If left undefined, the Dockerfile must be named `Dockerfile` and be present at the same directory level as the corresponding `build.env` file.
+- `CONDA_ENVIRONMENT_TEMPLATE`: For conda-based images, set this to the path (relative to the `build.env` file) to the conda environment template file. This file may have variables set in place of tool versions and will be populated with the variables from `build.env` at build time.
 
 
 ## Building Docker images
 
-Docker images can be built using the [build_docker_images](util/build_docker_images) utility script. Running this script with no `-d` argument will build all conda and non-conda images in the repo.
+Docker images can be built using the [build_docker_images](util/build_docker_images) utility script.
+
 
 ### Build a single image
 
 ```bash
-./util/build_docker_images -d docker/conda/smrtcell_stats
+./util/build_docker_images -d docker/smrtcell_stats
 ```
 
-#### Build all images
+#### Build all images in the `docker` directory
 
 ```bash
-./util/build_docker_images
+./util/build_docker_images -d docker
 ```
 
-#### Build and push all images
+#### Build and push all images in the `docker` directory
 
 ```bash
-./util/build_docker_images -p
+./util/build_docker_images -d docker -p
 ```
 
-#### Build and push all images in the `docker/conda` directory, using the `pacbio` container registry
+#### Build and push all images in the `docker` directory, using the `pacbio` container registry
 
 ```bash
-./util/build_docker_images -p -d docker/conda -c pacbio
+./util/build_docker_images -d docker -p -c pacbio
 ```

@@ -1,0 +1,11 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - gsl=${GSL_VERSION}
+  - slivar==${SLIVAR_VERSION}
+  - bcftools=${BCFTOOLS_VERSION}
+  - vcfpy==${VCFPY_VERSION}
+  - python=${PYTHON_VERSION}
+  - sed

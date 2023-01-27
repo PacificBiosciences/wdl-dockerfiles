@@ -1,0 +1,8 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - trgt=${TRGT_VERSION}
+  - samtools==${SAMTOOLS_VERSION}
+  - bcftools==${BCFTOOLS_VERSION}

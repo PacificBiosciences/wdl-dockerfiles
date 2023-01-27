@@ -1,0 +1,8 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - tandem-genotypes==${TANDEM_GENOTYPES_VERSION}
+  - pysam==${PYSAM_VERSION}
+  - python=${PYTHON_VERSION}

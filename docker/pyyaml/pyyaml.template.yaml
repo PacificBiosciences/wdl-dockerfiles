@@ -1,0 +1,5 @@
+channels:
+  - anaconda
+dependencies:
+  - pyyaml==${PYYAML_VERSION}
+  - python=${PYTHON_VERSION}

@@ -4,82 +4,111 @@
 
 set -eEuo pipefail
 
-DEFAULT_DOCKER_CONTEXT_DIR=$(readlink -f "$(dirname "$0")/../docker")
+DEFAULT_DOCKER_CONTEXT_DIR=$(readlink -f "$(dirname "$0")")
 
 usage() {
 cat << EOF
 
-  Recursively build and tag docker images in a directory
-  Usage: $0 [OPTIONS]
+  Recursively build and tag docker images in a directory.
+  Docker definitions are discovered by identifying build.env files in the docker_context_dir. build.env must define at minimum IMAGE_NAME and IMAGE_TAG variables.
+
+  Usage: $0 -d docker_context_dir [OPTIONS]
 
   OPTIONS
-  -h  Display this message and exit
-  -d  Directory to find Dockerfiles/build contexts in [${DEFAULT_DOCKER_CONTEXT_DIR}]
-  -c  Container registry
-  -p  Also push built images
+    -h  Display this message and exit
+    -d  Directory to find Dockerfiles/build contexts in [${DEFAULT_DOCKER_CONTEXT_DIR}]
+    -c  Container registry
+    -p  Also push built images
 
 EOF
 }
 
 log() {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&1
+  echo "$(tput bold)$(tput setaf 110)[$(date +'%Y-%m-%dT%H:%M:%S%z')] $@$(tput sgr0)" >&1
 }
 
 err() {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+  echo "$(tput bold)$(tput setaf 203)[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@$(tput sgr0)" >&2
 }
 
 build_docker_image() {
-  local dockerfile_path="$1"
-  local docker_context_dir="$2"
-  local image_name
-  image_name=$(basename "${docker_context_dir}")
+  local build_env_file="$1"
+  local docker_context_dir=$(dirname "${build_env_file}")
   local -a build_args
-  local env_file="${docker_context_dir}/build.env"
 
-  if [[ -s "${env_file}" ]]; then
-    while read -r build_arg || [[ -n "${build_arg}" ]]; do
-      build_args+=(--build-arg "${build_arg}")
-    done < "${env_file}"
-    build_args+=(--build-arg "IMAGE_NAME=${image_name}")
-  else
-    err "No env file found for docker context [${docker_context_dir}]"
-    err "Minimally define IMAGE_TAG=xxx in [${env_file}] and try again."
-    exit 1
-  fi
+  (
+    # Ensure we're pulling these variables from the build_env_file
+    unset IMAGE_NAME IMAGE_TAG DOCKERFILE NOBUILD CONDA_ENVIRONMENT_TEMPLATE
 
-  local image_tag
-  image_tag=$(grep 'IMAGE_TAG=' "${env_file}" || true)
-  if [[ -z "${image_tag}" ]]; then
-    # Try to set IMAGE_TAG from CONDA_ENV_REPO_HASH
-    conda_env_repo_hash=$(grep 'CONDA_ENV_REPO_HASH=' "${env_file}" || true)
-    if [[ -z "${conda_env_repo_hash}" ]]; then
-      err "No IMAGE_TAG defined for docker context [${docker_context_dir}]"
-      err "Set IMAGE_TAG in [${env_file}] and try again."
-      exit 1
-    else
-      image_tag=$(echo "${conda_env_repo_hash}" | cut -d '=' -f 2)
-      image_tag=${image_tag:0:7}
-      build_args+=(--build-arg "IMAGE_TAG=${image_tag}")
+    set -a
+    . "${build_env_file}"
+    set +a
+
+    IMAGE_NAME=${IMAGE_NAME:-}
+    IMAGE_TAG=${IMAGE_TAG:-}
+    DOCKERFILE=${DOCKERFILE:-}
+    NOBUILD=${NOBUILD:-false}
+    CONDA_ENVIRONMENT_TEMPLATE=${CONDA_ENVIRONMENT_TEMPLATE:-}
+
+    if [[ "${NOBUILD}" == "true" ]]; then
+      log "No-build set for docker context [${docker_context_dir}]; skipping"
+      return
     fi
-  else
-    image_tag=$(echo "${image_tag}" | cut -d '=' -f 2)
-  fi
 
-  local tagged_image="${CONTAINER_REGISTRY:+"${CONTAINER_REGISTRY}/"}${image_name}:${image_tag}"
-  log "Building ${tagged_image}"
+    # Find the Dockerfile, either in the same directory as the build.env file or using the DOCKERFILE variable from build.env
+    if [[ -z "${DOCKERFILE}" ]]; then
+      dockerfile=$(find "${docker_context_dir}" -type f -name Dockerfile)
+    else
+      dockerfile="${docker_context_dir}/${DOCKERFILE}"
+    fi
+    if [[ ! -s "${dockerfile}" ]]; then
+      err "[ERROR] Dockerfile not found; either create ${docker_context_dir}/Dockerfile or define the DOCKERFILE variable in ${build_env_file}"
+      exit 1
+    fi
 
-  docker build \
-    --rm \
-    "${build_args[@]}" \
-    -t "${tagged_image}" \
-    -f "${dockerfile_path}" \
-    "${docker_context_dir}"
+    # Ensure that at minimum IMAGE_NAME and IMAGE_TAG are defined
+    if [[ -z "${IMAGE_NAME}" ]]; then
+      err "[ERROR] No IMAGE_NAME defined for docker context [${docker_context_dir}]"
+      err "[ERROR] Set IMAGE_NAME in [${build_env_file}] and try again."
+      exit 1
+    fi
+    if [[ -z "${IMAGE_TAG}" ]]; then
+      err "[ERROR] No IMAGE_TAG defined for docker context [${docker_context_dir}]"
+      err "[ERROR] Set IMAGE_TAG in [${build_env_file}] and try again."
+      exit 1
+    fi
 
-  if [[ "${PUSH_IMAGES}" == 'true' ]]; then
-    log "Pushing ${tagged_image}"
-    docker push "${tagged_image}"
-  fi
+    # Make all varaiables defined in build.env available as build args
+    while read -r varname || [[ -n "${varname}" ]]; do
+      build_args+=(--build-arg "${varname}=${!varname}")
+    done < <(grep -v -e '^#' -e '^$' "${build_env_file}" | cut -d '=' -f 1)
+
+    # If a conda environment template is specified, generate a populated version of the file to be copied into the image
+    conda_environment_template="${docker_context_dir}/${CONDA_ENVIRONMENT_TEMPLATE}"
+    if [[ -n "${CONDA_ENVIRONMENT_TEMPLATE}" ]] && [[ -s "${conda_environment_template}" ]]; then
+      populated_conda_environment=${docker_context_dir}/${IMAGE_NAME}.populated.yaml
+
+      log "Generating populated conda environment [${populated_conda_environment}]"
+      envsubst \
+        < "${conda_environment_template}" \
+        > "${populated_conda_environment}"
+    fi
+
+    tagged_image="${CONTAINER_REGISTRY:+"${CONTAINER_REGISTRY}/"}${IMAGE_NAME}:${IMAGE_TAG}"
+    log "Building ${tagged_image}"
+
+    docker build \
+      --rm \
+      "${build_args[@]}" \
+      -t "${tagged_image}" \
+      -f "${dockerfile}" \
+      "${docker_context_dir}"
+
+    if [[ "${PUSH_IMAGES}" == 'true' ]]; then
+      log "Pushing ${tagged_image}"
+      docker push "${tagged_image}"
+    fi
+  )
 }
 
 while getopts "hd:c:p" OPTION; do
@@ -97,23 +126,12 @@ PUSH_IMAGES=${PUSH_IMAGES:-'false'}
 
 readonly DOCKER_CONTEXT_DIR CONTAINER_REGISTRY PUSH_IMAGES
 
-# Build regular docker images
-while read -r dockerfile_path; do
-  docker_context_dir=$(dirname "${dockerfile_path}")
-  build_docker_image "${dockerfile_path}" "${docker_context_dir}"
-done < <(find "${DOCKER_CONTEXT_DIR}" -type f -name Dockerfile)
-
-# Build dockers from conda envs
-conda_dockerfile_path=$(find "${DOCKER_CONTEXT_DIR}/.." -maxdepth 1 -name Conda_dockerfile)
-if [[ -n "${conda_dockerfile_path}" ]]; then
-  # If provided with a single conda image path, build just that image
-  build_docker_image "${conda_dockerfile_path}" "${DOCKER_CONTEXT_DIR}"
-else
-  # Otherwise build all conda images found in the docker context
-  while read -r dockerfile_path; do
-    conda_dockerfile_dir=$(dirname "${dockerfile_path}")
-    while read -r docker_context_dir; do
-      build_docker_image "${dockerfile_path}" "${docker_context_dir}"
-    done < <(find "${conda_dockerfile_dir}" -mindepth 1 -maxdepth 1 -type d)
-  done < <(find "${DOCKER_CONTEXT_DIR}" -type f -name Conda_dockerfile)
+IMAGES_TO_BUILD=$(find "${DOCKER_CONTEXT_DIR}" -type f -name build.env)
+if [[ "${#IMAGES_TO_BUILD}" -eq 0 ]]; then
+  usage
+  exit
 fi
+
+while read -r build_env_file; do
+  build_docker_image "${build_env_file}"
+done <<< "${IMAGES_TO_BUILD}"
