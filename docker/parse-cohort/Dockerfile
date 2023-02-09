@@ -1,5 +1,7 @@
 FROM ubuntu:focal
 
+MAINTAINER Heather Ward <heather@dnastack.com>
+
 ARG IMAGE_NAME
 ENV IMAGE_NAME "${IMAGE_NAME}"
 ARG IMAGE_TAG
