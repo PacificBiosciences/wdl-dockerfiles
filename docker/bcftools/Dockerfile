@@ -15,6 +15,7 @@ RUN apt-get -qq update \
 		liblzma-dev \
 		libbz2-dev \
 		libcurl4-openssl-dev \
+		tabix \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG BCFTOOLS_VERSION

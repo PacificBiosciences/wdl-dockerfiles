@@ -10,6 +10,7 @@ ENV IMAGE_TAG "${IMAGE_TAG}"
 RUN apt-get -qq update \
 	&& apt-get -qq install \
 		git \
+		tabix \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG WHATSHAP_VERSION

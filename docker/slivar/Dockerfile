@@ -15,11 +15,14 @@ RUN apt-get -qq update \
 		liblzma-dev \
 		libbz2-dev \
 		libcurl4-openssl-dev \
+		tabix \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG SLIVAR_VERSION
 RUN wget https://github.com/brentp/slivar/releases/download/v${SLIVAR_VERSION}/slivar --directory-prefix /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/slivar
+RUN wget https://github.com/brentp/slivar/releases/download/v${SLIVAR_VERSION}/pslivar --directory-prefix /usr/local/bin/ \
+	&& chmod +x /usr/local/bin/pslivar
 
 ARG BCFTOOLS_VERSION
 RUN wget https://github.com/samtools/bcftools/releases/download/${BCFTOOLS_VERSION}/bcftools-${BCFTOOLS_VERSION}.tar.bz2 \
