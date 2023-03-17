@@ -33,7 +33,7 @@ def _parse_args():
         "--out-dir",
         type=str,
         help="Output directory to save files into",
-        required=True,
+        default=".",
     )
 
     args = parser.parse_args()
