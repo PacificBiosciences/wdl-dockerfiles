@@ -18,6 +18,11 @@ FROM continuumio/miniconda3:4.12.0
 
 MAINTAINER Heather Ward <heather@dnastack.com>
 
+RUN apt-get -qq update \
+	&& apt-get -qq install \
+		gawk \
+	&& rm -rf /var/lib/apt/lists/*
+
 ARG IMAGE_NAME
 ENV IMAGE_NAME "${IMAGE_NAME}"
 ARG IMAGE_TAG
