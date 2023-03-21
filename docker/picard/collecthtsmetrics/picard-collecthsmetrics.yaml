@@ -1,0 +1,9 @@
+# Reordered channels and added the nodefaults channel from https://github.com/snakemake/snakemake-wrappers/blob/aa92df87a92a94c527ca736739e15ebd046463ea/bio/picard/createsequencedictionary/environment.yaml
+# Solves issue with environment taking a very long time
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - picard =2.26
+  - snakemake-wrapper-utils ==0.1.3

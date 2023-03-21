@@ -1,18 +1,3 @@
-FROM ubuntu:focal AS builder
-
-RUN apt-get update \
-	&& apt-get -y install \
-		git \
-	&& rm -rf /var/lib/apt/lists/*
-
-ARG CONDA_ENVIRONMENT_REPO_HASH
-WORKDIR /opt
-RUN git clone \
-	https://github.com/snakemake/snakemake-wrappers.git
-RUN cd /opt/snakemake-wrappers \
-	&& git checkout "${CONDA_ENVIRONMENT_REPO_HASH}"
-
-
 FROM continuumio/miniconda3:4.12.0
 
 MAINTAINER Heather Ward <heather@dnastack.com>
@@ -30,7 +15,7 @@ ARG BASE_TOOL
 ARG CONDA_ENVIRONMENT
 ARG SNAKEMAKE_WRAPPER
 
-COPY --from=builder "/opt/snakemake-wrappers/bio/${BASE_TOOL}/${SNAKEMAKE_WRAPPER}/environment.yaml" /opt/envs/${CONDA_ENVIRONMENT}.yaml
+COPY "${CONDA_ENVIRONMENT}.yaml" /opt/envs/${CONDA_ENVIRONMENT}.yaml
 RUN conda env create --file "/opt/envs/${CONDA_ENVIRONMENT}.yaml" --name "${CONDA_ENVIRONMENT}"
 ENV PATH /opt/conda/envs/${CONDA_ENVIRONMENT}/bin:$PATH
 
