@@ -31,16 +31,16 @@ def _parse_args():
 
 def main():
     try:
-        target_base_coverage_csv = snakemake.input[0]
+        targets_base_coverage_csv = snakemake.input[0]
         out_dir = snakemake.params.odir
     except NameError:
         args = _parse_args()
-        target_base_coverage_csv = args.target_base_coverage_csv
+        targets_base_coverage_csv = args.targets_base_coverage_csv
         out_dir = args.out_dir
 
     DPI = 200
 
-    coverage = pd.read_csv(target_base_coverage_csv)
+    coverage = pd.read_csv(targets_base_coverage_csv)
 
     order = sorted(coverage.target.unique())
     maxCols = int(len(order) ** 0.5) + 1
