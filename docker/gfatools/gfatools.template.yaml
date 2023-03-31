@@ -1,9 +1,0 @@
-channels:
-  - ohmeta
-  - bioconda
-  - conda-forge
-  - defaults
-dependencies:
-  - gfatools==${GFATOOLS_VERSION}
-  - htslib==${HTSLIB_VERSION}
-  - k8==${K8_VERSION}
