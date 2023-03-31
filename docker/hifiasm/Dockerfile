@@ -15,9 +15,9 @@ RUN apt-get -qq update \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG HIFIASM_VERSION
-RUN wget https://github.com/chhylp123/hifiasm/archive/refs/tags/${HIFIASM_VERSION}.tar.gz && \
-	tar -zxvf ${HIFIASM_VERSION}.tar.gz --directory /opt && \
-	rm ${HIFIASM_VERSION}.tar.gz
-RUN cd /opt/hifiasm-${HIFIASM_VERSION} && \
-	make
-RUN ln -s /opt/hifiasm-${HIFIASM_VERSION}/hifiasm /usr/local/bin/
+RUN wget https://github.com/chhylp123/hifiasm/archive/refs/tags/${HIFIASM_VERSION}.tar.gz \
+	&& tar -zxvf ${HIFIASM_VERSION}.tar.gz --directory /opt \
+	&& rm ${HIFIASM_VERSION}.tar.gz
+RUN cd /opt/hifiasm-${HIFIASM_VERSION} \
+	&& make \
+	&& ln -s /opt/hifiasm-${HIFIASM_VERSION}/hifiasm /usr/local/bin/
