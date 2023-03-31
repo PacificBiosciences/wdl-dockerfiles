@@ -1,4 +1,4 @@
-FROM python:3.9-buster
+FROM ubuntu:focal
 
 MAINTAINER Heather Ward <heather@dnastack.com>
 
@@ -7,22 +7,16 @@ ENV IMAGE_NAME "${IMAGE_NAME}"
 ARG IMAGE_TAG
 ENV IMAGE_TAG "${IMAGE_TAG}"
 
-RUN apt-get -qq update \
-	&& apt-get -qq install \
-		wget \
-		git \
+RUN apt-get -qq update && \
+	apt-get -qq install \
+	wget \
+	build-essential \
 	&& rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt /opt/
-RUN python3 -m pip install -r /opt/requirements.txt
+ARG PB_CPG_TOOLS_VERSION
+RUN wget https://github.com/PacificBiosciences/pb-CpG-tools/releases/download/${PB_CPG_TOOLS_VERSION}/pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu.tar.gz && \
+	tar -zxvf pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu.tar.gz --directory /opt && \
+	rm pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu.tar.gz
+RUN ln -s /opt/pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu/bin/aligned_bam_to_cpg_scores /usr/local/bin/
 
-ARG PB_CPG_TOOLS_GIT_HASH
-WORKDIR /opt
-RUN git clone https://github.com/PacificBiosciences/pb-CpG-tools.git \
-	&& cd pb-CpG-tools \
-	&& git checkout "${PB_CPG_TOOLS_GIT_HASH}"
-
-RUN chmod +x /opt/pb-CpG-tools/aligned_bam_to_cpg_scores.py \
-	&& ln -s /opt/pb-CpG-tools/aligned_bam_to_cpg_scores.py /usr/local/bin/
-
-ENV PILEUP_MODEL_DIR /opt/pb-CpG-tools/pileup_calling_model
+ENV PILEUP_MODEL_DIR /opt/pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu/models/
