@@ -1,7 +1,0 @@
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
-dependencies:
-  - minimap2==${MINIMAP2_VERSION}
-  - samtools==${SAMTOOLS_VERSION}
