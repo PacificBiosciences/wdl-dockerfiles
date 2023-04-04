@@ -16,6 +16,8 @@ RUN apt-get -qq update \
 		liblzma-dev \
 		libbz2-dev \
 		libcurl4-openssl-dev \
+		python3-dev \
+		python3-pip \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG TRGT_VERSION
@@ -43,3 +45,9 @@ RUN wget https://github.com/samtools/bcftools/releases/download/${BCFTOOLS_VERSI
 RUN cd /opt/bcftools-${BCFTOOLS_VERSION} \
 	&& make \
 	&& make install
+
+ARG PYSAM_VERSION
+RUN python3 -m pip install pysam==${PYSAM_VERSION}
+
+COPY scripts/* /opt/scripts/
+ENV PATH "${PATH}":/opt/scripts
