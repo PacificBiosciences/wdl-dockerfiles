@@ -37,14 +37,18 @@ def json_to_yaml(cohort_json_file, output_yaml_file):
             for parent in [sample["father_id"], sample["mother_id"]]
             if parent is not None
         ]
-        sex = sample["sex"]
-        if sex not in ["MALE", "FEMALE"]:
-            raise SystemExit(f"Invalid sex [{sex}]; must be one of ['MALE', 'FEMALE']")
+        sex = sample.get("sex")
+        if sex not in ["MALE", "FEMALE", None]:
+            raise SystemExit(
+                f"Invalid sex [{sex}]; must be one of ['MALE', 'FEMALE', null]"
+            )
         sample_info = {
             "id": sample["sample_id"],
-            "sex": sample["sex"],
             "parents": parents,
         }
+        if sex is not None:
+            sample_info["sex"] = sex
+
         if sample["affected"] == True:
             affected_samples.append(sample_info)
         elif sample["affected"] == False:
