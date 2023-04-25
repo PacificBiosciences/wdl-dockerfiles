@@ -11,6 +11,7 @@ RUN apt-get -qq update \
 	&& apt-get -qq install \
 		git \
 		tabix \
+		samtools \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG WHATSHAP_VERSION
