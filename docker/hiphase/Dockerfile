@@ -12,6 +12,7 @@ RUN apt-get -qq update \
 		wget \
 		build-essential \
 		zlib1g-dev \
+		libncurses5-dev \
         liblzma-dev \
         libbz2-dev \
         libcurl4-openssl-dev \
@@ -28,5 +29,13 @@ RUN wget https://github.com/samtools/bcftools/releases/download/${BCFTOOLS_VERSI
 	&& tar -jxvf bcftools-${BCFTOOLS_VERSION}.tar.bz2 --directory /opt \
 	&& rm bcftools-${BCFTOOLS_VERSION}.tar.bz2
 RUN cd /opt/bcftools-${BCFTOOLS_VERSION} \
+	&& make \
+	&& make install
+
+ARG SAMTOOLS_VERSION
+RUN wget https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VERSION}/samtools-${SAMTOOLS_VERSION}.tar.bz2 \
+	&& tar -jxvf samtools-${SAMTOOLS_VERSION}.tar.bz2 --directory /opt \
+	&& rm samtools-${SAMTOOLS_VERSION}.tar.bz2
+RUN cd /opt/samtools-${SAMTOOLS_VERSION} \
 	&& make \
 	&& make install
