@@ -48,12 +48,12 @@ def json_to_yaml(cohort_json_file, output_yaml_file):
             "id": sample["sample_id"],
             "parents": parents,
         }
-        if sex is not None:
+        if sex:
             sample_info["sex"] = sex
 
-        if sample["affected"] == True:
+        if sample["affected"]:
             affected_samples.append(sample_info)
-        elif sample["affected"] == False:
+        else:
             unaffected_samples.append(sample_info)
 
     parsed_data = [
