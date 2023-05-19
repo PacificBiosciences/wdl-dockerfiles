@@ -3,6 +3,8 @@
 from argparse import ArgumentParser
 import json
 
+__version__ = "1.0.2"
+
 
 def _load_cohort_info(cohort_json_file):
     """
@@ -147,6 +149,11 @@ if __name__ == "__main__":
         dest="output_yaml_file",
         type=str,
         help="Write the cohort information as a yaml file",
+    )
+    options.add_argument(
+        "--version",
+        action="version",
+        version=f"parse_cohort.py version {__version__}"
     )
 
     args = parser.parse_args()
