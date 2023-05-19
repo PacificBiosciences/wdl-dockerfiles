@@ -59,7 +59,7 @@ def json_to_yaml(cohort_json_file, output_yaml_file):
     parsed_data = [
         {
             "id": cohort_info["cohort_id"],
-            "phenotypes": cohort_info.get("phenotypes", None),
+            "phenotypes": cohort_info.get("phenotypes", []),
             "affecteds": affected_samples,
             "unaffecteds": unaffected_samples,
         }
