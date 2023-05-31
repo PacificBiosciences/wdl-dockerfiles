@@ -1,0 +1,4 @@
+channels:
+  - bioconda
+dependencies:
+  - pbbam==${PBBAM_VERSION}
