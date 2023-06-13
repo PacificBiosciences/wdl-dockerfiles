@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 MAINTAINER Heather Ward <heather@dnastack.com>
 
@@ -12,7 +12,8 @@ RUN apt-get -qq update \
 	&& apt-get -qq install \
 		wget \
 		unzip \
-		python-dev \
+		python2-dev \
+		python3-dev \
 		python3-pip \
 		zlib1g-dev \
 		libncurses5-dev \
@@ -24,6 +25,7 @@ RUN apt-get -qq update \
 		git \
 		cmake \
 	&& rm -rf /var/lib/apt/lists/*
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 2
 
 # Need bash for curly brace pattern replace for boost version
 SHELL ["/bin/bash", "-c"]
@@ -76,11 +78,8 @@ ARG PBBAM_VERSION
 RUN wget https://github.com/PacificBiosciences/pbbam/archive/refs/tags/v${PBBAM_VERSION}.tar.gz \
 	&& tar -zxvf v${PBBAM_VERSION}.tar.gz --directory /opt \
 	&& rm v${PBBAM_VERSION}.tar.gz
-# Workaround for "error: ‘ssize’ is not a member of ‘std’; did you mean ‘size’?"
 RUN cd /opt/pbbam-2.1.0 \
-	&& sed -i 's~std::ssize~std::size~g' src/PbiFilterTypes.cpp \
 	&& meson build . \
-	&& cd build \
-	&& meson install
+	&& meson install -C build
 
 ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/local/lib:/usr/local/lib/x86_64-linux-gnu/
