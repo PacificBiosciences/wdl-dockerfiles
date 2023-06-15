@@ -78,7 +78,7 @@ ARG PBBAM_VERSION
 RUN wget https://github.com/PacificBiosciences/pbbam/archive/refs/tags/v${PBBAM_VERSION}.tar.gz \
 	&& tar -zxvf v${PBBAM_VERSION}.tar.gz --directory /opt \
 	&& rm v${PBBAM_VERSION}.tar.gz
-RUN cd /opt/pbbam-2.1.0 \
+RUN cd /opt/pbbam-${PBBAM_VERSION} \
 	&& meson build . \
 	&& meson install -C build
 
