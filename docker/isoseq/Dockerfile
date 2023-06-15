@@ -12,7 +12,7 @@ RUN apt-get -qq update \
 		wget \
 	&& rm -rf /var/lib/apt/lists/*
 
-ARG ISOSEQ3_VERSION
-RUN wget https://github.com/PacificBiosciences/IsoSeq/releases/download/v${ISOSEQ3_VERSION}/isoseq3 --directory-prefix /opt/isoseq3 \
-	&& chmod +x /opt/isoseq3/isoseq3 \
-	&& ln -s /opt/isoseq3/isoseq3 /usr/local/bin
+ARG ISOSEQ_VERSION
+RUN wget https://github.com/PacificBiosciences/IsoSeq/releases/download/v${ISOSEQ_VERSION}/isoseq --directory-prefix /opt/isoseq \
+	&& chmod +x /opt/isoseq/isoseq \
+	&& ln -s /opt/isoseq/isoseq /usr/local/bin
