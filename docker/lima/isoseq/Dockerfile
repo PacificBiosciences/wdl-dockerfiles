@@ -12,10 +12,12 @@ RUN apt-get -qq update \
 		wget \
 	&& rm -rf /var/lib/apt/lists/*
 
+# Need to explicitly grant executable to non-root users
 ARG LIMA_VERSION
 RUN wget https://github.com/PacificBiosciences/barcoding/releases/download/v${LIMA_VERSION}/lima.tar.gz \
 	&& mkdir /opt/lima \
 	&& tar -zxvf lima.tar.gz --directory /opt/lima \
-	&& rm lima.tar.gz
+	&& rm lima.tar.gz \
+	&& chmod +x /opt/lima/*
 
 ENV PATH ${PATH}:/opt/lima
