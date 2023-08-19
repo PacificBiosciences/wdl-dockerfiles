@@ -15,21 +15,3 @@ RUN apt-get -qq update \
 ARG PBMM2_VERSION
 RUN wget https://github.com/PacificBiosciences/pbmm2/releases/download/v${PBMM2_VERSION}/pbmm2 --directory-prefix /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/pbmm2
-
-ARG DATAMASH_VERSION
-RUN wget https://ftp.gnu.org/gnu/datamash/datamash-${DATAMASH_VERSION}.tar.gz \
-	&& tar -zxvf datamash-${DATAMASH_VERSION}.tar.gz --directory /opt \
-	&& rm datamash-${DATAMASH_VERSION}.tar.gz
-RUN cd /opt/datamash-${DATAMASH_VERSION} \
-	&& ./configure \
-	&& make \
-	&& make check \
-	&& make install
-
-ARG PYSAM_VERSION
-# Issue with the use_2to3 library required to build pysam for setuptools > 58
-RUN python3 -m pip install setuptools==58
-RUN python3 -m pip install pysam==${PYSAM_VERSION}
-
-COPY scripts/* /opt/scripts/
-ENV PATH "${PATH}":/opt/scripts
