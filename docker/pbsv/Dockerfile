@@ -10,15 +10,6 @@ ENV IMAGE_TAG "${IMAGE_TAG}"
 RUN apt-get -qq update \
 	&& apt-get -qq install \
 		wget \
-	&& rm -rf /var/lib/apt/lists/*
-
-ARG PBSV_VERSION
-RUN wget https://github.com/PacificBiosciences/pbsv/releases/download/v${PBSV_VERSION}/pbsv --directory-prefix /usr/local/bin/ \
-	&& chmod +x /usr/local/bin/pbsv
-
-RUN apt-get -qq update \
-	&& apt-get -qq install \
-		wget \
 		build-essential \
 		zlib1g-dev \
 		liblzma-dev \
@@ -33,3 +24,7 @@ RUN wget https://github.com/samtools/htslib/releases/download/${HTSLIB_VERSION}/
 RUN cd /opt/htslib-${HTSLIB_VERSION} \
 	&& make \
 	&& make install
+
+ARG PBSV_VERSION
+RUN wget https://github.com/PacificBiosciences/pbsv/releases/download/v${PBSV_VERSION}/pbsv --directory-prefix /usr/local/bin/ \
+	&& chmod +x /usr/local/bin/pbsv
