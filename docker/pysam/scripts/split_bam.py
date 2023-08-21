@@ -27,7 +27,7 @@ def main(args):
                 )
             bamout.write(record)
             recordcount += 1
-            if recordcount == int(args.chunksize):
+            if recordcount == args.chunksize:
                 bamout.close()
                 recordcount = 0
                 chunk += 1
@@ -37,8 +37,8 @@ def main(args):
 if __name__ == "__main__":
     """This is executed when run from the command line"""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("ubam", help="Unaligned reads BAM")
-    parser.add_argument("chunksize", help="Maximum number of reads per chunk")
+    parser.add_argument("ubam", type=str, help="Unaligned reads BAM")
+    parser.add_argument("chunksize", type=int, help="Maximum number of reads per chunk")
     parser.add_argument(
         "--version",
         action="version",
