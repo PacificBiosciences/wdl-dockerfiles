@@ -20,7 +20,7 @@ RUN apt-get -qq update \
 
 ARG GFATOOLS_VERSION
 RUN wget https://github.com/lh3/gfatools/archive/refs/tags/v${GFATOOLS_VERSION}.tar.gz \
-	&& tar -zxvf v${GFATOOLS_VERSION}.tar.gz --directory /opt \
+	&& tar --no-same-owner -zxvf v${GFATOOLS_VERSION}.tar.gz --directory /opt \
 	&& rm v${GFATOOLS_VERSION}.tar.gz
 RUN cd /opt/gfatools-${GFATOOLS_VERSION} \
 	&& make \
@@ -28,7 +28,7 @@ RUN cd /opt/gfatools-${GFATOOLS_VERSION} \
 
 ARG HTSLIB_VERSION
 RUN wget https://github.com/samtools/htslib/releases/download/${HTSLIB_VERSION}/htslib-${HTSLIB_VERSION}.tar.bz2 \
-	&& tar -jxvf htslib-${HTSLIB_VERSION}.tar.bz2 --directory /opt \
+	&& tar --no-same-owner -jxvf htslib-${HTSLIB_VERSION}.tar.bz2 --directory /opt \
 	&& rm htslib-${HTSLIB_VERSION}.tar.bz2
 RUN cd /opt/htslib-${HTSLIB_VERSION} \
 	&& make \
@@ -36,7 +36,7 @@ RUN cd /opt/htslib-${HTSLIB_VERSION} \
 
 ARG K8_VERSION
 RUN wget https://github.com/attractivechaos/k8/releases/download/${K8_VERSION}/k8-${K8_VERSION}.tar.bz2 \
-	&& tar -jxvf k8-${K8_VERSION}.tar.bz2 --directory /opt \
+	&& tar --no-same-owner -jxvf k8-${K8_VERSION}.tar.bz2 --directory /opt \
 	&& rm k8-${K8_VERSION}.tar.bz2
 RUN cd /opt/k8-${K8_VERSION} \
 	&& ln -s /opt/k8-${K8_VERSION}/k8-Linux /usr/local/bin/k8
