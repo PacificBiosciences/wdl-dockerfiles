@@ -3,6 +3,8 @@
 from argparse import ArgumentParser
 import json
 
+__version__ = "1.0.2"
+
 
 def _load_cohort_info(cohort_json_file):
     """
@@ -34,10 +36,10 @@ def json_to_yaml(cohort_json_file, output_yaml_file):
     for sample in cohort_info["samples"]:
         parents = [
             parent
-            for parent in [sample["father_id"], sample["mother_id"]]
+            for parent in [sample.get("father_id", None), sample.get("mother_id", None)]
             if parent is not None
         ]
-        sex = sample.get("sex")
+        sex = sample.get("sex", None)
         if sex not in ["MALE", "FEMALE", None]:
             raise SystemExit(
                 f"Invalid sex [{sex}]; must be one of ['MALE', 'FEMALE', null]"
@@ -46,18 +48,18 @@ def json_to_yaml(cohort_json_file, output_yaml_file):
             "id": sample["sample_id"],
             "parents": parents,
         }
-        if sex is not None:
+        if sex:
             sample_info["sex"] = sex
 
-        if sample["affected"] == True:
+        if sample["affected"]:
             affected_samples.append(sample_info)
-        elif sample["affected"] == False:
+        else:
             unaffected_samples.append(sample_info)
 
     parsed_data = [
         {
             "id": cohort_info["cohort_id"],
-            "phenotypes": cohort_info["phenotypes"],
+            "phenotypes": cohort_info.get("phenotypes", []),
             "affecteds": affected_samples,
             "unaffecteds": unaffected_samples,
         }
@@ -85,8 +87,8 @@ def parse_families(cohort_json_file):
     trios = dict()
     for sample in cohort_info["samples"]:
         child_id = sample["sample_id"]
-        father_id = sample["father_id"]
-        mother_id = sample["mother_id"]
+        father_id = sample.get("father_id", None)
+        mother_id = sample.get("mother_id", None)
 
         # Check that both parental IDs are defined, and both parents are found in this cohort
         if (
@@ -147,6 +149,11 @@ if __name__ == "__main__":
         dest="output_yaml_file",
         type=str,
         help="Write the cohort information as a yaml file",
+    )
+    options.add_argument(
+        "--version",
+        action="version",
+        version=f"parse_cohort.py version {__version__}"
     )
 
     args = parser.parse_args()
