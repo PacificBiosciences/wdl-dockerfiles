@@ -19,7 +19,7 @@ RUN apt-get -qq update \
 
 ARG HTSLIB_VERSION
 RUN wget https://github.com/samtools/htslib/releases/download/${HTSLIB_VERSION}/htslib-${HTSLIB_VERSION}.tar.bz2 \
-	&& tar -jxvf htslib-${HTSLIB_VERSION}.tar.bz2 --directory /opt \
+	&& tar --no-same-owner -jxvf htslib-${HTSLIB_VERSION}.tar.bz2 --directory /opt \
 	&& rm htslib-${HTSLIB_VERSION}.tar.bz2
 RUN cd /opt/htslib-${HTSLIB_VERSION} \
 	&& make \
