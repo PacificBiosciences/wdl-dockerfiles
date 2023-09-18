@@ -18,7 +18,7 @@ RUN wget https://github.com/PacificBiosciences/pbmm2/releases/download/v${PBMM2_
 
 ARG DATAMASH_VERSION
 RUN wget https://ftp.gnu.org/gnu/datamash/datamash-${DATAMASH_VERSION}.tar.gz \
-	&& tar -zxvf datamash-${DATAMASH_VERSION}.tar.gz --directory /opt \
+	&& tar --no-same-owner -zxvf datamash-${DATAMASH_VERSION}.tar.gz --directory /opt \
 	&& rm datamash-${DATAMASH_VERSION}.tar.gz
 RUN cd /opt/datamash-${DATAMASH_VERSION} \
 	&& ./configure \
