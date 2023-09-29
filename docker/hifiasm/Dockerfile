@@ -16,7 +16,7 @@ RUN apt-get -qq update \
 
 ARG HIFIASM_VERSION
 RUN wget https://github.com/chhylp123/hifiasm/archive/refs/tags/${HIFIASM_VERSION}.tar.gz \
-	&& tar -zxvf ${HIFIASM_VERSION}.tar.gz --directory /opt \
+	&& tar --no-same-owner -zxvf ${HIFIASM_VERSION}.tar.gz --directory /opt \
 	&& rm ${HIFIASM_VERSION}.tar.gz
 RUN cd /opt/hifiasm-${HIFIASM_VERSION} \
 	&& make \

@@ -15,7 +15,7 @@ RUN apt-get -qq update && \
 
 ARG PB_CPG_TOOLS_VERSION
 RUN wget https://github.com/PacificBiosciences/pb-CpG-tools/releases/download/${PB_CPG_TOOLS_VERSION}/pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu.tar.gz && \
-	tar -zxvf pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu.tar.gz --directory /opt && \
+	tar --no-same-owner -zxvf pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu.tar.gz --directory /opt && \
 	rm pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu.tar.gz
 RUN ln -s /opt/pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu/bin/aligned_bam_to_cpg_scores /usr/local/bin/
 

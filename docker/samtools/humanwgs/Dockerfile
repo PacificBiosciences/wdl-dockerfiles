@@ -20,7 +20,7 @@ RUN apt-get -qq update \
 
 ARG SAMTOOLS_VERSION
 RUN wget https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VERSION}/samtools-${SAMTOOLS_VERSION}.tar.bz2 \
-	&& tar -jxvf samtools-${SAMTOOLS_VERSION}.tar.bz2 --directory /opt \
+	&& tar --no-same-owner -jxvf samtools-${SAMTOOLS_VERSION}.tar.bz2 --directory /opt \
 	&& rm samtools-${SAMTOOLS_VERSION}.tar.bz2
 RUN cd /opt/samtools-${SAMTOOLS_VERSION} \
 	&& make \
