@@ -1,0 +1,3 @@
+# To push glnexus to your repo, run:
+
+./util/build_docker_images -s ghcr.io/dnanexus-rnd/ -d docker/glnexus/ -c ${repo} -p

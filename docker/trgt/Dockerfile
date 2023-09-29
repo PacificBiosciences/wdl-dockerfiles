@@ -32,7 +32,7 @@ ENV PATH "${PATH}":/opt/trgt
 
 ARG SAMTOOLS_VERSION
 RUN wget https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VERSION}/samtools-${SAMTOOLS_VERSION}.tar.bz2 \
-	&& tar -jxvf samtools-${SAMTOOLS_VERSION}.tar.bz2 --directory /opt \
+	&& tar --no-same-owner -jxvf samtools-${SAMTOOLS_VERSION}.tar.bz2 --directory /opt \
 	&& rm samtools-${SAMTOOLS_VERSION}.tar.bz2
 RUN cd /opt/samtools-${SAMTOOLS_VERSION} \
 	&& make \
@@ -40,7 +40,7 @@ RUN cd /opt/samtools-${SAMTOOLS_VERSION} \
 
 ARG BCFTOOLS_VERSION
 RUN wget https://github.com/samtools/bcftools/releases/download/${BCFTOOLS_VERSION}/bcftools-${BCFTOOLS_VERSION}.tar.bz2 \
-	&& tar -jxvf bcftools-${BCFTOOLS_VERSION}.tar.bz2 --directory /opt \
+	&& tar --no-same-owner -jxvf bcftools-${BCFTOOLS_VERSION}.tar.bz2 --directory /opt \
 	&& rm bcftools-${BCFTOOLS_VERSION}.tar.bz2
 RUN cd /opt/bcftools-${BCFTOOLS_VERSION} \
 	&& make \
