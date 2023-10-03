@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser
 import json
+from argparse import ArgumentParser
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 
 def _load_cohort_info(cohort_json_file):

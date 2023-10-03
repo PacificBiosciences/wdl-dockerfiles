@@ -4,13 +4,13 @@ Create PED file for cohortid from 100Humans cohortyaml
 """
 
 __author__ = "William Rowell"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 import argparse
-import yaml
 import csv
 
+import yaml
 
 """
 Family_ID = cohortid
