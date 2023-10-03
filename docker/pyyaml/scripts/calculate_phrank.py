@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Calculate the "Phrank" phenotype match score for a list of phenotypes for every gene.
 """
