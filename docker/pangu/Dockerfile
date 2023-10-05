@@ -19,7 +19,7 @@ RUN python3 -m pip install pysam==${PYSAM_VERSION}
 
 ARG PANGU_VERSION
 WORKDIR /opt
-RUN git clone git@github.com:PacificBiosciences/pangu.git \
+RUN git clone https://github.com/PacificBiosciences/pangu.git \
 	&& cd pangu \
 	&& git checkout "v${PANGU_VERSION}" \
 	&& python3 -m pip install .
