@@ -28,6 +28,7 @@ RUN mkdir -p /opt/sentieon/ \
 	&& rm sentieon-genomics-${SENTIEON_VERSION}.tar.gz
 
 ARG SENTIEON_PACBIO_MODEL_VERSION
+ENV SENTIEON_PACBIO_MODEL_VERSION "${SENTIEON_PACBIO_MODEL_VERSION}"
 RUN mkdir -p /opt/sentieon/model \
 	&& wget "https://s3.amazonaws.com/sentieon-release/other/${SENTIEON_PACBIO_MODEL_VERSION}.bundle" \
 	&& mv "${SENTIEON_PACBIO_MODEL_VERSION}.bundle" /opt/sentieon/model/
@@ -47,6 +48,7 @@ RUN wget https://github.com/arq5x/bedtools2/releases/download/v${BEDTOOLS_VERSIO
 	&& chmod +x /usr/local/bin/bedtools
 
 ARG SENTIEON_SCRIPTS_GIT_HASH
+ENV SENTIEON_SCRIPTS_GIT_HASH "${SENTIEON_SCRIPTS_GIT_HASH}"
 WORKDIR /opt
 RUN git clone https://github.com/Sentieon/sentieon-scripts.git \
 	&& cd sentieon-scripts \
