@@ -9,7 +9,6 @@ ENV IMAGE_TAG "${IMAGE_TAG}"
 
 RUN apt-get -qq update \
 		&& apt-get -qq install \
-		curl \
 		libjemalloc2 \
 		procps \
 		git \
@@ -24,12 +23,13 @@ RUN apt-get -qq update \
 ARG SENTIEON_VERSION
 ENV SENTIEON_VERSION "${SENTIEON_VERSION}"
 RUN mkdir -p /opt/sentieon/ \
-	&& curl -L "https://s3.amazonaws.com/sentieon-release/software/sentieon-genomics-${SENTIEON_VERSION}.tar.gz" \
-	| tar --no-same-owner -zxf - --directory /opt/sentieon/
+	&& wget "https://s3.amazonaws.com/sentieon-release/software/sentieon-genomics-${SENTIEON_VERSION}.tar.gz" \
+	&& tar --no-same-owner -zxf sentieon-genomics-${SENTIEON_VERSION}.tar.gz --directory /opt/sentieon/ \
+	&& rm sentieon-genomics-${SENTIEON_VERSION}.tar.gz
 
 ARG SENTIEON_PACBIO_MODEL_VERSION
 RUN mkdir -p /opt/sentieon/model \
-	&& curl -L "https://s3.amazonaws.com/sentieon-release/other/${SENTIEON_PACBIO_MODEL_VERSION}.bundle" \
+	&& wget "https://s3.amazonaws.com/sentieon-release/other/${SENTIEON_PACBIO_MODEL_VERSION}.bundle" \
 	&& mv "${SENTIEON_PACBIO_MODEL_VERSION}.bundle" /opt/sentieon/model/
 ENV MODEL_BUNDLE="/opt/sentieon/model/${SENTIEON_PACBIO_MODEL_VERSION}.bundle"
 
