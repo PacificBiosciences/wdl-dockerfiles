@@ -1,42 +1,37 @@
-FROM ubuntu:focal AS builder
+FROM python:3.9-buster
 
-RUN apt-get update \
-	&& apt-get -y install \
-		git \
-	&& rm -rf /var/lib/apt/lists/*
-
-ARG CONDA_ENVIRONMENT_REPO_HASH
-WORKDIR /opt
-RUN git clone \
-	--recurse-submodules \
-	https://github.com/PacificBiosciences/HiFiTargetEnrichment.git
-RUN cd /opt/HiFiTargetEnrichment \
-	&& git checkout "${CONDA_ENVIRONMENT_REPO_HASH}"
-
-
-FROM continuumio/miniconda3:4.12.0
-
-MAINTAINER Heather Ward <heather@dnastack.com>
-
-RUN apt-get -qq update \
-	&& apt-get -qq install \
-		gawk \
-	&& rm -rf /var/lib/apt/lists/*
+MAINTAINER Billy Rowell <wrowell@pacificbiosciences.com>
 
 ARG IMAGE_NAME
 ENV IMAGE_NAME "${IMAGE_NAME}"
 ARG IMAGE_TAG
 ENV IMAGE_TAG "${IMAGE_TAG}"
-ARG CONDA_ENVIRONMENT
-ENV CONDA_ENVIRONMENT "${CONDA_ENVIRONMENT}"
 
-COPY --from=builder "/opt/HiFiTargetEnrichment/rules/envs/${CONDA_ENVIRONMENT}.yaml" /opt/envs/
-RUN conda env create --file "/opt/envs/${CONDA_ENVIRONMENT}.yaml" --name "${CONDA_ENVIRONMENT}"
-ENV PATH /opt/conda/envs/${CONDA_ENVIRONMENT}/bin:/opt/scripts:$PATH
+RUN apt-get -qq update \
+	&& apt-get -qq install \
+		git \
+	&& rm -rf /var/lib/apt/lists/*
 
-RUN echo "source activate ${CONDA_ENVIRONMENT}" >> ~/.bashrc
+ARG PYYAML_VERSION
+ARG NUMPY_VERSION
+ARG SCIPY_VERSION
+ARG SCIKIT_LEARN_VERSION
+ARG PANDAS_VERSION
+ARG PYSAM_VERSION
+ARG MAPPY_VERSION
+# Issue with the use_2to3 library required to build pysam for setuptools > 58
+RUN python3 -m pip install setuptools==58
+RUN python3 -m pip install pyyaml==${PYYAML_VERSION}
+RUN python3 -m pip install numpy==${NUMPY_VERSION}
+RUN python3 -m pip install scipy==${SCIPY_VERSION}
+RUN python3 -m pip install scikit-learn==${SCIKIT_LEARN_VERSION}
+RUN python3 -m pip install pandas==${PANDAS_VERSION}
+RUN python3 -m pip install pysam==${PYSAM_VERSION}
+RUN python3 -m pip install mappy==${MAPPY_VERSION}
 
-# workaround for no haplotypes found
-RUN sed -i \
-	's~^        self.haplotypes = None~        self.haplotypes = []~' \
-	/opt/conda/envs/${CONDA_ENVIRONMENT}/lib/python3.10/site-packages/${CONDA_ENVIRONMENT}/cyp2d6_typer.py
+ARG PANGU_VERSION
+WORKDIR /opt
+RUN git clone https://github.com/PacificBiosciences/pangu.git \
+	&& cd pangu \
+	&& git checkout "v${PANGU_VERSION}" \
+	&& python3 -m pip install .
