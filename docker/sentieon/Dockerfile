@@ -53,9 +53,11 @@ WORKDIR /opt
 RUN git clone https://github.com/Sentieon/sentieon-scripts.git \
 	&& cd sentieon-scripts \
 	&& git checkout "${SENTIEON_SCRIPTS_GIT_HASH}" \
+	&& wget https://raw.githubusercontent.com/Sentieon/sentieon-cli/main/sentieon_cli/scripts/gvcf_combine.py \
+	&& mv gvcf_combine.py /opt/sentieon-scripts/dnascope_LongRead/ \
 	&& chmod +x /opt/sentieon-scripts/dnascope_LongRead/*.py \
 	&& chmod +x /opt/sentieon-scripts/dnascope_LongRead/*.sh
-ENV PATH ${PATH}:/opt/sentieon-scripts/dnascope_LongRead
+ENV PATH ${PATH}:/opt/sentieon-scripts/dnascope_LongRead 
 
 ENV SENTIEON_INSTALL_DIR=/opt/sentieon/sentieon-genomics-$SENTIEON_VERSION
 ENV PATH $SENTIEON_INSTALL_DIR/bin/:$PATH
