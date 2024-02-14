@@ -14,9 +14,10 @@ ENV IMAGE_NAME="${IMAGE_NAME}" \
     IMAGE_TAG="${IMAGE_TAG}" \
     NUMPY_VERSION="${NUMPY_VERSION}" \
     PANDAS_VERSION="${PANDAS_VERSION}" \
-	SEABORN_VERSION="${SEABORN_VERSION}" \
-	BIOPYTHON_VERSION="${BIOPYTHON_VERSION}" \
+    SEABORN_VERSION="${SEABORN_VERSION}" \
+    BIOPYTHON_VERSION="${BIOPYTHON_VERSION}" \
     PATH="${PATH}:/opt/scripts"
+
 
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
@@ -30,3 +31,6 @@ RUN apt-get update -qq && \
 	sed -i 's|filepath = os.path.join(bin_dir, "{}.fa".format(bin))|filepath = os.path.join("bins", "{}.fa".format(bin))|' /opt/scripts/Filter-Checkm2-Bins.py && \
     chmod +x /opt/scripts/* && \ 
 	pip install numpy=="${NUMPY_VERSION}" pandas=="${PANDAS_VERSION}" seaborn=="${SEABORN_VERSION}" biopython=="${BIOPYTHON_VERSION}"
+
+COPY scripts/* /opt/scripts/
+RUN chmod +x /opt/scripts/Fasta-Make-Long-Seq-Bins.py
