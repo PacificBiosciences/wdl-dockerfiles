@@ -24,13 +24,8 @@ RUN apt-get update -qq && \
         wget \
         git && \
     rm -rf /var/lib/apt/lists/* && \
-    git clone --recurse-submodules https://github.com/PacificBiosciences/pb-metagenomics-tools.git /opt/pb-metagenomics-tools && \
-    cd /opt/pb-metagenomics-tools && \
-    git checkout "${TOOL_REPO_HASH}" && \
-    cp -r /opt/pb-metagenomics-tools/HiFi-MAG-Pipeline/scripts /opt/scripts && \
-	sed -i 's|filepath = os.path.join(bin_dir, "{}.fa".format(bin))|filepath = os.path.join("bins", "{}.fa".format(bin))|' /opt/scripts/Filter-Checkm2-Bins.py && \
-    chmod +x /opt/scripts/* && \ 
-	pip install numpy=="${NUMPY_VERSION}" pandas=="${PANDAS_VERSION}" seaborn=="${SEABORN_VERSION}" biopython=="${BIOPYTHON_VERSION}"
+    mkdir /opt/scripts && \
+    pip install numpy=="${NUMPY_VERSION}" pandas=="${PANDAS_VERSION}" seaborn=="${SEABORN_VERSION}" biopython=="${BIOPYTHON_VERSION}"
 
 COPY scripts/* /opt/scripts/
-RUN chmod +x /opt/scripts/Fasta-Make-Long-Seq-Bins.py
+RUN chmod +x /opt/scripts/*

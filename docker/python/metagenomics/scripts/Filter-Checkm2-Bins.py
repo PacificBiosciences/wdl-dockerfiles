@@ -123,7 +123,7 @@ def write_gtdb_batch_file(passing_bins, bin_dir, gtdb_outfile):
     if passing_bins:
         with open(gtdb_outfile, 'a') as fh:
             for bin in passing_bins:
-                filepath = os.path.join(bin_dir, "{}.fa".format(bin))
+                filepath = os.path.join("bins", "{}.fa".format(bin))
                 fh.write("{}\t{}\n".format(filepath, bin))
     else:
         with open(gtdb_outfile, 'a') as fh:
