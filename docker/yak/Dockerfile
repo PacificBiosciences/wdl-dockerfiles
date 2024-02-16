@@ -16,7 +16,7 @@ RUN apt-get -qq update \
 
 ARG YAK_VERSION
 RUN wget https://github.com/lh3/yak/archive/refs/tags/v${YAK_VERSION}.tar.gz \
-	&& tar -zxvf v${YAK_VERSION}.tar.gz --directory /opt \
+	&& tar --no-same-owner -zxvf v${YAK_VERSION}.tar.gz --directory /opt \
 	&& rm v${YAK_VERSION}.tar.gz
 RUN cd /opt/yak-${YAK_VERSION} \
 	&& make \

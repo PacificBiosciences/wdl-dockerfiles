@@ -1,4 +1,4 @@
-FROM python:3.9-buster
+FROM ubuntu:focal
 
 MAINTAINER Heather Ward <heather@dnastack.com>
 
@@ -9,11 +9,12 @@ ENV IMAGE_TAG "${IMAGE_TAG}"
 
 RUN apt-get -qq update \
 	&& apt-get -qq install \
-		wget \
+		python3-dev \
+		python3-pip \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG PYYAML_VERSION
 RUN python3 -m pip install pyyaml==${PYYAML_VERSION}
 
 COPY scripts/* /opt/scripts/
-ENV PATH "${PATH}":/opt/scripts
+ENV PATH "${PATH}:/opt/scripts/"

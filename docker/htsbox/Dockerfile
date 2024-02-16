@@ -16,7 +16,7 @@ RUN apt-get -qq update \
 
 ARG HTSBOX_VERSION_HASH
 RUN wget https://github.com/lh3/htsbox/archive/${HTSBOX_VERSION_HASH}.tar.gz \
-	&& tar -zxvf ${HTSBOX_VERSION_HASH}.tar.gz --directory /opt \
+	&& tar --no-same-owner -zxvf ${HTSBOX_VERSION_HASH}.tar.gz --directory /opt \
 	&& rm ${HTSBOX_VERSION_HASH}.tar.gz
 RUN cd /opt/htsbox-${HTSBOX_VERSION_HASH} \
 	&& make \
