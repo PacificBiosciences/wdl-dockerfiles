@@ -1,0 +1,9 @@
+name: gtdbtk_env
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - gtdbtk == ${GTDBTK_VERSION}
+  - python == ${PYTHON_VERSION}
+  - pandas
