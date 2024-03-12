@@ -3,7 +3,7 @@
 import json
 from argparse import ArgumentParser
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 
 def _load_cohort_info(cohort_json_file):
@@ -36,7 +36,7 @@ def json_to_yaml(cohort_json_file, output_yaml_file):
     for sample in cohort_info["samples"]:
         parents = [
             parent
-            for parent in [sample.get("father_id", None), sample.get("mother_id", None)]
+            for parent in [sample.get("mother_id", None), sample.get("father_id", None)]
             if parent is not None
         ]
         sex = sample.get("sex", None)
