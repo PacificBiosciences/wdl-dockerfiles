@@ -3,12 +3,14 @@
 Print read length and predicted read quality for unaligned reads (uBAM or FASTQ)
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 import argparse
-import pysam
 import math
+import sys
+
+import pysam
 
 
 def readQualityFromBaseQuality(baseQuals):
@@ -20,7 +22,9 @@ def readQualityFromBaseQuality(baseQuals):
 
 def main(args):
     if args.readsin.endswith(".bam"):
+        save = pysam.set_verbosity(0)  # suppress [E::idx_find_and_load]
         bamin = pysam.AlignmentFile(args.readsin, check_sq=False)
+        pysam.set_verbosity(save)  # restore warnings
         for b in bamin:
             if b.has_tag("rq"): # get read qualitiy from "rq" BAM tag if available
                 errorrate = 1.0 - b.get_tag("rq")
