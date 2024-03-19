@@ -34,7 +34,7 @@ AFFECTEDSTATUS = {'unaffecteds': 1, 'affecteds': 2}
 def find_cohort(args):
     """Find entry for cohortid within cohortyaml."""
     with open(args.cohortyaml, 'r') as yamlfile:
-        cohort_list = yaml.load(yamlfile, Loader=yaml.FullLoader)
+        cohort_list = yaml.load(yamlfile, Loader=yaml.SafeLoader)
     for cohort in cohort_list:
         if cohort['id'] == args.cohortid:
             return cohort

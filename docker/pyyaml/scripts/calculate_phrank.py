@@ -243,7 +243,7 @@ def main(args):
     )
 
     yamlfile = open(args.cohortyaml, "r")
-    cohort_list = yaml.load("".join(yamlfile))
+    cohort_list = yaml.load("".join(yamlfile), Loader=yaml.SafeLoader)
     yamlfile.close()
 
     cohort = None
