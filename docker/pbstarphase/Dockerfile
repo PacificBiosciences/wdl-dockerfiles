@@ -19,11 +19,13 @@ RUN apt-get update -qq && \
         git && \
     rm -rf /var/lib/apt/lists/* && \
     cd /opt &&\
-    #wget https://github.com/PacificBiosciences/pb-StarPhase/archive/refs/tags/${TOOL_VER}.tar.gz && \
-    #tar zxvf ${TOOL_VER}.tar.gz && \
-    #ln -s /opt/pb-StarPhase-0.8.1 /opt/pbstarphase && \
+    ## Unpack the DB
+    wget https://github.com/PacificBiosciences/pb-StarPhase/archive/refs/tags/${TOOL_VER}.tar.gz && \
+    tar zxvf ${TOOL_VER}.tar.gz && \
+    ln -s pbStarPhase-0.9.0/data/v0.9.0/cpic_20240404.json.gz ./pbstarphase_db.json.gz && \
     mkdir /opt/bin && \
     cd /opt/bin && \
+    ## Install binary
     wget https://github.com/PacificBiosciences/pb-StarPhase/releases/download/${TOOL_VER}/pbstarphase-${TOOL_VER}-x86_64-unknown-linux-gnu.tar.gz && \
     tar zxvf pbstarphase-${TOOL_VER}-x86_64-unknown-linux-gnu.tar.gz && \
     chmod +x pbstarphase-${TOOL_VER}-x86_64-unknown-linux-gnu/pbstarphase && \
