@@ -1,0 +1,4 @@
+# Treat "microcephaly" and "macrocephaly" as abnormalities of skull size (HP:0000240)
+# and not as neurologic abnormalities.
+HP:0000252	HP:0000240
+HP:0000256	HP:0000240
