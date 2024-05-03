@@ -1,17 +1,11 @@
-FROM ubuntu:focal
+FROM pb_wdl_base:build1
 
-MAINTAINER Heather Ward <heather@dnastack.com>
+LABEL maintainer="Billy Rowell <wrowell@pacb.com>"
 
 ARG IMAGE_NAME
 ENV IMAGE_NAME "${IMAGE_NAME}"
 ARG IMAGE_TAG
 ENV IMAGE_TAG "${IMAGE_TAG}"
-
-RUN apt-get -qq update && \
-	apt-get -qq install \
-	wget \
-	build-essential \
-	&& rm -rf /var/lib/apt/lists/*
 
 ARG PB_CPG_TOOLS_VERSION
 RUN wget https://github.com/PacificBiosciences/pb-CpG-tools/releases/download/${PB_CPG_TOOLS_VERSION}/pb-CpG-tools-${PB_CPG_TOOLS_VERSION}-x86_64-unknown-linux-gnu.tar.gz && \
