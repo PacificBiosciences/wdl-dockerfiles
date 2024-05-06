@@ -1,4 +1,4 @@
-FROM pb_wdl_base:build1
+FROM quay.io/pacbio/pb_wdl_base@sha256:963c8ef4cd011cd044d5efcff2759aa37b86d0ca5739ce576f60a0ae0967292c
 
 LABEL maintainer="Billy Rowell <wrowell@pacb.com>"
 
@@ -12,5 +12,5 @@ RUN wget https://github.com/lh3/yak/archive/refs/tags/v${YAK_VERSION}.tar.gz \
 	&& tar --no-same-owner -zxvf v${YAK_VERSION}.tar.gz --directory /opt \
 	&& rm v${YAK_VERSION}.tar.gz
 RUN cd /opt/yak-${YAK_VERSION} \
-	&& make \
+	&& make -j \
 	&& ln -s /opt/yak-${YAK_VERSION}/yak /usr/local/bin/
