@@ -19,6 +19,7 @@ RUN apt-get -qq update \
 		libcurl4-openssl-dev \
 		python3 \
 		python3-pip \
+		python-is-python3 \
 		jq \
 		gawk \
 		parallel \
