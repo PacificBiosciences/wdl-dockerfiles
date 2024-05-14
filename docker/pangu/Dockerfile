@@ -1,6 +1,6 @@
 FROM python:3.9-buster
 
-MAINTAINER Billy Rowell <wrowell@pacificbiosciences.com>
+LABEL maintainer="Billy Rowell <wrowell@pacb.com>"
 
 ARG IMAGE_NAME
 ENV IMAGE_NAME "${IMAGE_NAME}"
@@ -20,14 +20,14 @@ ARG PANDAS_VERSION
 ARG PYSAM_VERSION
 ARG MAPPY_VERSION
 # Issue with the use_2to3 library required to build pysam for setuptools > 58
-RUN python3 -m pip install setuptools==58
-RUN python3 -m pip install pyyaml==${PYYAML_VERSION}
-RUN python3 -m pip install numpy==${NUMPY_VERSION}
-RUN python3 -m pip install scipy==${SCIPY_VERSION}
-RUN python3 -m pip install scikit-learn==${SCIKIT_LEARN_VERSION}
-RUN python3 -m pip install pandas==${PANDAS_VERSION}
-RUN python3 -m pip install pysam==${PYSAM_VERSION}
-RUN python3 -m pip install mappy==${MAPPY_VERSION}
+# RUN python3 -m pip install setuptools==58
+RUN python3 -m pip install pyyaml==${PYYAML_VERSION} \
+	numpy==${NUMPY_VERSION} \
+	scipy==${SCIPY_VERSION} \
+	scikit-learn==${SCIKIT_LEARN_VERSION} \
+	pandas==${PANDAS_VERSION} \
+	pysam==${PYSAM_VERSION} \
+	mappy==${MAPPY_VERSION}
 
 ARG PANGU_VERSION
 WORKDIR /opt

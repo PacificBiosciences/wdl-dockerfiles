@@ -1,0 +1,75 @@
+# Trim connections to the root of the tree.
+HP:[0-9]*	HP:0000001
+# Trim connections to the root of the "Phenotypic abnormality" subtree.
+HP:[0-9]*	HP:0000118
+
+# Trim second-level connections: disconnect all the grandchildren of "Phenotypic abnormality"
+# from their parents (except for Neoplasm, Growth, and Breast).
+# Most children of "Phenotypic abnormality" are too generic to be interesting coalescents.
+HP:[0-9]*	HP:0000119
+HP:[0-9]*	HP:0000152
+HP:[0-9]*	HP:0000478
+HP:[0-9]*	HP:0000598
+HP:[0-9]*	HP:0000707
+HP:[0-9]*	HP:0000818
+HP:[0-9]*	HP:0000924
+HP:[0-9]*	HP:0001197
+HP:[0-9]*	HP:0001438
+HP:[0-9]*	HP:0001574
+HP:[0-9]*	HP:0001626
+HP:[0-9]*	HP:0001871
+HP:[0-9]*	HP:0001939
+HP:[0-9]*	HP:0002086
+HP:[0-9]*	HP:0002715
+HP:[0-9]*	HP:0003011
+HP:[0-9]*	HP:0003549
+# Trim the connections of "neoplasm of X anatomical site" to anatomical site.
+# Leave the connections to general "neoplasm".
+HP:0100544	HP:0001627
+HP:0100742	HP:0002597
+HP:0100604	HP:0000159
+HP:0004377	HP:0001871
+HP:0100568	HP:0000818
+HP:0100521	HP:0000777
+HP:0002894	HP:0001732
+HP:0100649	HP:0000163
+HP:0100826	HP:0001597
+HP:0100799	HP:0000370
+HP:0010622	HP:0011842
+HP:0004375	HP:0000707
+HP:0007379	HP:0000119
+HP:0007378	HP:0011024
+HP:0100012	HP:0012372
+HP:0100013	HP:0000769
+HP:0008069	HP:0000951
+# Trim connections from "abnormality of the head" to its children.
+HP:[0-9]*	HP:0000234
+# Trim connections from "abnormality of the face" to its children (chin, forehead, etc.).
+HP:[0-9]*	HP:0000271
+# Trim connections from "abnormality of the abdominal organs" to its children (liver, pancreas, etc.).
+HP:[0-9]*	HP:0002012
+# Trim connections from "abnormality of the genital system" to its children (genital system morphology,
+# reproductive system physiology).
+HP:[0-9]*	HP:0000078
+# Trim connections from "abnormality of the urinary system" to its children.
+HP:[0-9]*	HP:0000079
+# Trim connections from "abnormality of the skin adnexa" to its children (hair, nails, sweat glands).
+HP:[0-9]*	HP:0011138
+# TODO: Trim connections from "abnormality of nervous system morphology" to its children.
+# TODO: Trim connections from "abnormality of nervous system physiology" to its children.
+# Trim connections from "Abnormality of higher mental function" to its children.
+HP:[0-9]*	HP:0011446
+# Trim connections from "Abnormal respiratory system morphology" to its children.
+HP:[0-9]*	HP:0012252
+# Trim "Functional abnormality of the inner/middle ear" from the parent so that
+# functional ear abnormalities do not mix with morphological abnormalities.
+HP:0011389	HP:0000359
+HP:0011452	HP:0000370
+# Treat "microcephaly" and "macrocephaly" as abnormalities of skull size (HP:0000240)
+# and not as neurologic abnormalities.  Trim connections to the neurologic subtree of the DAG.
+HP:0000252	HP:[0-9]*
+HP:0000256	HP:[0-9]*
+# Trim connections of "Abnormality of skull size" to its parents.
+HP:0000240	HP:[0-9]*
+# Trim the connection of "seizures" to its parents
+HP:0001250	HP:[0-9]*
