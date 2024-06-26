@@ -14,3 +14,6 @@ RUN wget https://github.com/PacificBiosciences/trgt/releases/download/v${TRGT_VE
 	&& rm trgt-v${TRGT_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
 	&& mv trgt-v${TRGT_VERSION}-x86_64-unknown-linux-gnu/trgt /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/trgt
+
+COPY scripts/* /opt/scripts/
+ENV PATH "${PATH}:/opt/scripts/"
