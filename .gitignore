@@ -1,2 +1,6 @@
 # Populated conda environments
 *.populated.yaml
+venv
+__pycache__
+.pytest_cache
+.ruff_cache
