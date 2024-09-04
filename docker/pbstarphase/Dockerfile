@@ -13,7 +13,7 @@ RUN wget https://github.com/PacificBiosciences/pb-StarPhase/archive/refs/tags/v$
 	&& tar --no-same-owner -zxvf v${PBSTARPHASE_VERSION}.tar.gz --directory /opt \
 	&& rm v${PBSTARPHASE_VERSION}.tar.gz \
 	&& ln -s /opt/pb-StarPhase-${PBSTARPHASE_VERSION}/data/${CPIC_BUILD_VERSION} /opt/pbstarphase_db.json.gz
-ARG wget https://github.com/PacificBiosciences/pb-StarPhase/releases/download/v${PBSTARPHASE_VERSION}/pbstarphase-v${PBSTARPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
+RUN wget https://github.com/PacificBiosciences/pb-StarPhase/releases/download/v${PBSTARPHASE_VERSION}/pbstarphase-v${PBSTARPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
 	&& tar --no-same-owner -zxvf pbstarphase-v${PBSTARPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz --directory /opt \
 	&& rm pbstarphase-v${PBSTARPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
 	&& mv /opt/pbstarphase-v${PBSTARPHASE_VERSION}-x86_64-unknown-linux-gnu/pbstarphase /usr/local/bin \
