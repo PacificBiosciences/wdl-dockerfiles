@@ -11,7 +11,7 @@ Output PED columns:
 6. phenotype (1=unaffected; 2=affected)
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 import json
 import csv
@@ -19,7 +19,7 @@ import sys
 
 
 SEX = {"MALE": "1", "M": "1", "FEMALE": "2", "F": "2"}
-STATUS = {False: "1", True: "2", "false": "1", "true": "2"}
+STATUS = {False: "1", True: "2"}
 
 
 def parse_sample(family_id, sample):
@@ -34,10 +34,11 @@ def parse_sample(family_id, sample):
   ]
 
 
-def parse_family(family_id, family):
+def parse_family(family):
   """For a family struct, return a list of lists of PED fields for each sample."""
+  family_id = family["family_id"]
   samples = []
-  for sample in family:
+  for sample in family["samples"]:
     samples.append(parse_sample(family_id, sample))
   return samples
 
@@ -50,9 +51,8 @@ def write_ped(samples):
 
 
 def main():
-  family_id = sys.argv[2]
   with open(sys.argv[1], "r") as family:
-    samples = parse_family(family_id, json.load(family))
+    samples = parse_family(json.load(family)[0])
     write_ped(samples)
 
 
