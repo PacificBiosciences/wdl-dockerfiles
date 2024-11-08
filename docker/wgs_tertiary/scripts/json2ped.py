@@ -52,7 +52,7 @@ def write_ped(samples):
 
 def main():
   with open(sys.argv[1], "r") as family:
-    samples = parse_family(json.load(family)[0])
+    samples = parse_family(json.load(family))
     write_ped(samples)
 
 
