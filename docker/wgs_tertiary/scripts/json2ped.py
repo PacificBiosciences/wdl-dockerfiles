@@ -11,14 +11,14 @@ Output PED columns:
 6. phenotype (1=unaffected; 2=affected)
 """
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 import json
 import csv
 import sys
 
 
-SEX = {"MALE": "1", "M": "1", "FEMALE": "2", "F": "2"}
+SEX = {"MALE": "1", "M": "1", "FEMALE": "2", "F": "2", ".": "."}
 STATUS = {False: "1", True: "2"}
 
 
@@ -27,9 +27,9 @@ def parse_sample(family_id, sample):
   return [
     family_id,
     sample["sample_id"],
-    sample.get("father_id", "."),
-    sample.get("mother_id", "."),
-    SEX.get(sample.get("sex", ".").upper(), "."),  # all cases accepted
+    sample.get("father_id", ".") if sample.get("father_id", ".") else ".",
+    sample.get("mother_id", ".") if sample.get("mother_id", ".") else ".",
+    SEX.get(sample.get("sex", ".") if sample.get("sex", ".") else ".", ".").upper(),
     STATUS.get(sample.get("affected"), "0"),
   ]
 
