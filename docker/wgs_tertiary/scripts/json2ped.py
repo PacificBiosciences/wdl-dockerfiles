@@ -11,53 +11,61 @@ Output PED columns:
 6. phenotype (1=unaffected; 2=affected)
 """
 
-__version__ = "0.4.0"
+__version__ = '0.5.0'
 
 import json
 import csv
 import sys
 
 
-SEX = {"MALE": "1", "M": "1", "FEMALE": "2", "F": "2", ".": "."}
-STATUS = {False: "1", True: "2"}
+SEX = {'MALE': '1', 'M': '1', 'FEMALE': '2', 'F': '2', '.': '.'}
+STATUS = {False: '1', True: '2'}
+
+
+def get_value(d, key):
+  """Return value from dict or '.' if key is None or absent."""
+  if key in d and d[key] is not None:
+    return d[key]
+  else:
+    return '.'
 
 
 def parse_sample(family_id, sample):
   """For a sample struct, return a list of PED fields."""
   return [
     family_id,
-    sample["sample_id"],
-    sample.get("father_id", ".") if sample.get("father_id", ".") else ".",
-    sample.get("mother_id", ".") if sample.get("mother_id", ".") else ".",
-    SEX.get(sample.get("sex", ".") if sample.get("sex", ".") else ".", ".").upper(),
-    STATUS.get(sample.get("affected"), "0"),
+    sample['sample_id'],
+    get_value(sample, 'father_id'),
+    get_value(sample, 'mother_id'),
+    SEX.get(get_value(sample, 'sex').upper()),
+    STATUS.get(sample.get('affected'), '0'),
   ]
 
 
 def parse_family(family):
   """For a family struct, return a list of lists of PED fields for each sample."""
-  family_id = family["family_id"]
+  family_id = family['family_id']
   samples = []
-  for sample in family["samples"]:
+  for sample in family['samples']:
     samples.append(parse_sample(family_id, sample))
   return samples
 
 
 def write_ped(samples):
   """Write PED format to stdout."""
-  tsv_writer = csv.writer(sys.stdout, delimiter="\t")
+  tsv_writer = csv.writer(sys.stdout, delimiter='\t')
   for sample in samples:
     tsv_writer.writerow(sample)
 
 
 def main():
-  with open(sys.argv[1], "r") as family:
-    samples = parse_family(json.load(family)[0])
+  with open(sys.argv[1], 'r') as family:
+    samples = parse_family(json.load(family))
     write_ped(samples)
 
 
-if __name__ == "__main__":
-  if sys.argv[1] in ["-v", "--version"]:
+if __name__ == '__main__':
+  if sys.argv[1] in ['-v', '--version']:
     print(__version__)
     sys.exit(0)
   main()
