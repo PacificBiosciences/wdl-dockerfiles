@@ -23,6 +23,7 @@ RUN apt-get -qq update \
 		jq \
 		gawk \
 		parallel \
+		time \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG HTSLIB_VERSION
