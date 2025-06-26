@@ -13,3 +13,10 @@ RUN wget https://github.com/PacificBiosciences/sawfish/releases/download/v${SAWF
 	rm sawfish-v${SAWFISH_VERSION}-x86_64-unknown-linux-gnu.tar.gz
 RUN ln -s /opt/sawfish-v${SAWFISH_VERSION}-x86_64-unknown-linux-gnu/bin/sawfish /usr/local/bin/ && \
 	chmod +x /usr/local/bin/sawfish
+
+ARG SAWSHARK_VERSION
+RUN wget https://github.com/PacificBiosciences/sawshark/releases/download/v${SAWSHARK_VERSION}/sawshark-v${SAWSHARK_VERSION}-x86_64-unknown-linux-gnu.tar.gz && \
+	tar --no-same-owner -zxvf sawshark-v${SAWSHARK_VERSION}-x86_64-unknown-linux-gnu.tar.gz --directory /opt && \
+	rm sawshark-v${SAWSHARK_VERSION}-x86_64-unknown-linux-gnu.tar.gz
+RUN ln -s /opt/sawshark-v${SAWSHARK_VERSION}-x86_64-unknown-linux-gnu/bin/sawshark /usr/local/bin/ && \
+	chmod +x /usr/local/bin/sawshark
