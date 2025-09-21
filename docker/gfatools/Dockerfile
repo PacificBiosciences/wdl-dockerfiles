@@ -20,7 +20,7 @@ RUN wget https://github.com/attractivechaos/k8/releases/download/v${K8_VERSION}/
 	&& tar --no-same-owner -jxvf k8-${K8_VERSION}.tar.bz2 --directory /opt \
 	&& rm k8-${K8_VERSION}.tar.bz2
 RUN cd /opt/k8-${K8_VERSION} \
-	&& ln -s /opt/k8-${K8_VERSION}/k8-Linux /usr/local/bin/k8
+	&& ln -s /opt/k8-${K8_VERSION}/k8-x86_64-Linux /usr/local/bin/k8
 
 ARG CALN50_GIT_HASH
 WORKDIR /opt
