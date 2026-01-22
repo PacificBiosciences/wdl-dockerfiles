@@ -1,0 +1,52 @@
+name: Build and Push Docker Images
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+    - name: Identify changed subdirectories
+      id: changes
+      run: |
+        git fetch origin main
+        CHANGED_DIRS=$(git diff --name-only origin/main ${{ github.head_ref }} | grep '^docker/' | cut -d'/' -f2 | sort | uniq | tr '\n' ' ')
+        echo "changed_dirs=$CHANGED_DIRS" >> $GITHUB_ENV
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        platforms: linux/amd64
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        registry: quay.io
+        username: ${{ vars.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+    - name: Check for existing images
+      id: check_images
+      run: |
+        set -e
+        for dir in ${{ env.changed_dirs }}; do
+          if [ -f "./docker/$dir/build.env" ]; then
+            source ./docker/$dir/build.env
+            IMAGE="quay.io/pacbio/${IMAGE_NAME}:${IMAGE_TAG}"
+            if docker manifest inspect $IMAGE > /dev/null 2>&1; then
+              echo "Image $IMAGE already exists."
+              exit 1
+            fi
+          fi
+        done
+        echo "All images are new."
+    - name: Build and push new images
+      if: steps.check_images.outcome == 'success'
+      run: |
+        for dir in ${{ env.changed_dirs }}; do
+          if [ -f "./docker/$dir/build.env" ]; then
+            bash ./util/build_docker_images -d docker/$dir -p -c quay.io/pacbio
+          fi
+        done
