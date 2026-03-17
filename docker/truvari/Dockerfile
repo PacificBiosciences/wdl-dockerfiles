@@ -7,16 +7,11 @@ ENV IMAGE_NAME="${IMAGE_NAME}"
 ARG IMAGE_TAG
 ENV IMAGE_TAG="${IMAGE_TAG}"
 
-ARG MAFFT_VERSION=7.505-1
-ARG TRUVARI_VERSION=5.4.0
-ARG PYABPOA_VERSION=1.4.3
-ARG PYWFA_VERSION=0.5.1
-ARG SETUPTOOLS_VERSION=58.5.3
+ARG MAFFT_VERSION
+ARG TRUVARI_VERSION
+ARG PYABPOA_VERSION
 RUN wget https://mafft.cbrc.jp/alignment/software/mafft_${MAFFT_VERSION}_amd64.deb \
 	&& dpkg -i mafft_${MAFFT_VERSION}_amd64.deb \
 	&& rm mafft_${MAFFT_VERSION}_amd64.deb
-RUN python3 -m pip install --upgrade pip \
-	&& python3 -m pip install setuptools==${SETUPTOOLS_VERSION} wheel \
-	&& python3 -m pip install --no-build-isolation pyabpoa==${PYABPOA_VERSION} \
-	&& python3 -m pip install pywfa==${PYWFA_VERSION} \
+RUN python3 -m pip install --no-build-isolation pyabpoa==${PYABPOA_VERSION} \
 	&& python3 -m pip install "truvari[bwa]==${TRUVARI_VERSION}"
