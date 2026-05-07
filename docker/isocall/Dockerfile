@@ -1,6 +1,6 @@
 FROM quay.io/pacbio/pb_wdl_base@sha256:4b889a1f21a6a7fecf18820613cf610103966a93218de772caba126ab70a8e87
 
-LABEL maintainer="Billy Rowell <wrowell@pacb.com>"
+LABEL maintainer="Tom Mokveld <tmokveld@pacificbiosciences.com>"
 
 ARG IMAGE_NAME
 ENV IMAGE_NAME "${IMAGE_NAME}"
@@ -8,6 +8,6 @@ ARG IMAGE_TAG
 ENV IMAGE_TAG "${IMAGE_TAG}"
 
 ARG ISOCALL_VERSION
-RUN wget https://github.com/PacificBiosciences/isocall/releases/download/${ISOCALL_VERSION}/isocall-v${ISOCALL_VERSION}.gz \
-	&& gunzip -c isocall-v${ISOCALL_VERSION}.gz > /usr/local/bin/isocall \
+RUN wget https://github.com/PacificBiosciences/isocall/releases/download/${ISOCALL_VERSION}/isocall-v${ISOCALL_VERSION}-linux-x86_64.gz \
+	&& gunzip -c isocall-v${ISOCALL_VERSION}-linux-x86_64.gz > /usr/local/bin/isocall \
 	&& chmod +x /usr/local/bin/isocall
