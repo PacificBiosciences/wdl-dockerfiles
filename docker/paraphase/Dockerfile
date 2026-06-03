@@ -7,13 +7,8 @@ ENV IMAGE_NAME "${IMAGE_NAME}"
 ARG IMAGE_TAG
 ENV IMAGE_TAG "${IMAGE_TAG}"
 
-ARG MINIMAP2_VERSION
-RUN wget https://github.com/lh3/minimap2/releases/download/v${MINIMAP2_VERSION}/minimap2-${MINIMAP2_VERSION}.tar.bz2 \
-	&& tar --no-same-owner -jxvf minimap2-${MINIMAP2_VERSION}.tar.bz2 --directory /opt \
-	&& rm minimap2-${MINIMAP2_VERSION}.tar.bz2
-RUN cd /opt/minimap2-${MINIMAP2_VERSION} \
-	&& make -j \
-	&& ln -s /opt/minimap2-${MINIMAP2_VERSION}/minimap2 /usr/local/bin/
-
 ARG PARAPHASE_VERSION
-RUN python3 -m pip install paraphase==${PARAPHASE_VERSION}
+RUN wget https://github.com/PacificBiosciences/paraphase/releases/download/v${PARAPHASE_VERSION}/paraphase-v${PARAPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
+	&& tar --no-same-owner -zxvf paraphase-v${PARAPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz --directory /opt \
+	&& rm paraphase-v${PARAPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
+	&& ln -s /opt/paraphase-v${PARAPHASE_VERSION}-x86_64-unknown-linux-gnu/paraphase /usr/local/bin/
