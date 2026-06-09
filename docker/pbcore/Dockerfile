@@ -1,4 +1,4 @@
-FROM quay.io/pacbio/pb_wdl_base@sha256:7e7822f6b540f911d46e2e40dec321a63bed9cae6e51846a4b9c3cae5e682e16
+FROM quay.io/pacbio/pb_wdl_base@sha256:ef224ec6b77c959baf24bb3c06189acfc62300af92e1e74d311e281735749c56
 LABEL maintainer="Jocelyne Bruand <jbruand@pacb.com>"
 
 ARG IMAGE_NAME
