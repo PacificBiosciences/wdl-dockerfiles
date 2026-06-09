@@ -9,17 +9,17 @@ ENV IMAGE_TAG "${IMAGE_TAG}"
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-ARG UV_PYTHON
-ENV UV_PYTHON "${UV_PYTHON}"
-RUN uv venv /opt/venv --python "${UV_PYTHON}"
+ARG UV_PYTHON_VERSION
+ENV UV_PYTHON_VERSION "${UV_PYTHON_VERSION}"
+RUN uv venv /opt/venv --python "${UV_PYTHON_VERSION}"
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-RUN ln -s $(uv python find "${UV_PYTHON}") /usr/local/bin/python3
-RUN ln -s $(uv python find "${UV_PYTHON}") /usr/local/bin/python
+RUN ln -s $(uv python find "${UV_PYTHON_VERSION}") /usr/local/bin/python3
+RUN ln -s $(uv python find "${UV_PYTHON_VERSION}") /usr/local/bin/python
 
 RUN apt-get -qq update \
-	&& apt-get -qq upgrade \
-	&& apt-get -qq install --no-install-recommends \
+	&& apt-get -qq -y upgrade \
+	&& apt-get -qq -y install --no-install-recommends \
 		curl \
 		ca-certificates \
 		git \
@@ -70,7 +70,6 @@ ARG PANDAS_VERSION
 ARG MATPLOTLIB_VERSION
 ARG SEABORN_VERSION
 ARG PYSAM_VERSION
-ARG VCFPY_VERSION
 ARG BIOPYTHON_VERSION
 RUN uv pip install \
     "numpy~=${NUMPY_VERSION}" \
