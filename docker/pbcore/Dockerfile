@@ -1,5 +1,5 @@
 FROM quay.io/pacbio/pb_wdl_base@sha256:7e7822f6b540f911d46e2e40dec321a63bed9cae6e51846a4b9c3cae5e682e16
-LABEL maintainer="Billy Rowell <wrowell@pacb.com>"
+LABEL maintainer="Jocelyne Bruand <jbruand@pacb.com>"
 
 ARG IMAGE_NAME
 ENV IMAGE_NAME="${IMAGE_NAME}"
