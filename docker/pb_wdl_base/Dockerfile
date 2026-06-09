@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:26.04
 
 LABEL maintainer="Billy Rowell <wrowell@pacb.com>"
 
@@ -7,8 +7,21 @@ ENV IMAGE_NAME "${IMAGE_NAME}"
 ARG IMAGE_TAG
 ENV IMAGE_TAG "${IMAGE_TAG}"
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+ARG UV_PYTHON
+ENV UV_PYTHON "${UV_PYTHON}"
+RUN uv venv /opt/venv --python "${UV_PYTHON}"
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN ln -s $(uv python find "${UV_PYTHON}") /usr/local/bin/python3
+RUN ln -s $(uv python find "${UV_PYTHON}") /usr/local/bin/python
+
 RUN apt-get -qq update \
-	&& apt-get -qq install \
+	&& apt-get -qq upgrade \
+	&& apt-get -qq install --no-install-recommends \
+		curl \
+		ca-certificates \
 		git \
 		wget \
 		build-essential \
@@ -17,9 +30,7 @@ RUN apt-get -qq update \
 		libbz2-dev \
 		libncurses5-dev \
 		libcurl4-openssl-dev \
-		python3 \
-		python3-pip \
-		python-is-python3 \
+		libdeflate-dev \
 		jq \
 		gawk \
 		parallel \
@@ -61,13 +72,10 @@ ARG SEABORN_VERSION
 ARG PYSAM_VERSION
 ARG VCFPY_VERSION
 ARG BIOPYTHON_VERSION
-# Issue with the use_2to3 library required to build pysam for setuptools > 58
-# python3 -m pip install setuptools==58 \
-RUN python3 -m pip install \
-	numpy==${NUMPY_VERSION} \
-	pandas==${PANDAS_VERSION} \
-	matplotlib==${MATPLOTLIB_VERSION} \
-	seaborn==${SEABORN_VERSION} \
-	pysam==${PYSAM_VERSION} \
-	vcfpy==${VCFPY_VERSION} \
-	biopython==${BIOPYTHON_VERSION}
+RUN uv pip install \
+    "numpy~=${NUMPY_VERSION}" \
+    "pandas~=${PANDAS_VERSION}" \
+    "matplotlib~=${MATPLOTLIB_VERSION}" \
+    "seaborn~=${SEABORN_VERSION}" \
+    "pysam~=${PYSAM_VERSION}" \
+    "biopython~=${BIOPYTHON_VERSION}"
