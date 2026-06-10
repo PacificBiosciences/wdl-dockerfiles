@@ -20,20 +20,20 @@ RUN ln -s $(uv python find "${UV_PYTHON_VERSION}") /usr/local/bin/python
 RUN apt-get -qq update \
 	&& apt-get -qq -y upgrade \
 	&& apt-get -qq -y install --no-install-recommends \
-		curl \
-		ca-certificates \
-		git \
-		wget \
-		build-essential \
-		zlib1g-dev \
-		liblzma-dev \
-		libbz2-dev \
-		libncurses5-dev \
-		libcurl4-openssl-dev \
-		libdeflate-dev \
-		jq \
-		gawk \
-		parallel \
+	curl \
+	ca-certificates \
+	git \
+	wget \
+	build-essential \
+	zlib1g-dev \
+	liblzma-dev \
+	libbz2-dev \
+	libncurses5-dev \
+	libcurl4-openssl-dev \
+	libdeflate-dev \
+	jq \
+	gawk \
+	parallel \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG HTSLIB_VERSION
@@ -72,9 +72,13 @@ ARG SEABORN_VERSION
 ARG PYSAM_VERSION
 ARG BIOPYTHON_VERSION
 RUN uv pip install \
-    "numpy~=${NUMPY_VERSION}" \
-    "pandas~=${PANDAS_VERSION}" \
-    "matplotlib~=${MATPLOTLIB_VERSION}" \
-    "seaborn~=${SEABORN_VERSION}" \
-    "pysam~=${PYSAM_VERSION}" \
-    "biopython~=${BIOPYTHON_VERSION}"
+	"numpy~=${NUMPY_VERSION}" \
+	"pandas~=${PANDAS_VERSION}" \
+	"matplotlib~=${MATPLOTLIB_VERSION}" \
+	"seaborn~=${SEABORN_VERSION}" \
+	"pysam~=${PYSAM_VERSION}" \
+	"biopython~=${BIOPYTHON_VERSION}"
+
+# make sure the uv install is executable / readable to all
+RUN chmod -R o+rx /root/.local/share/uv/python/ && \
+	chmod o+rx /root /root/.local /root/.local/share /root/.local/share/uv
