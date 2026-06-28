@@ -1,4 +1,4 @@
-FROM quay.io/pacbio/pb_wdl_base@sha256:4b889a1f21a6a7fecf18820613cf610103966a93218de772caba126ab70a8e87
+FROM quay.io/pacbio/pb_wdl_base@sha256:1fa8b22abd2e32afe18cb2ff41dd0426d813a0450515efc0e626cf35f5658af3
 
 LABEL maintainer="Tom Mokveld <tmokveld@pacificbiosciences.com>"
 

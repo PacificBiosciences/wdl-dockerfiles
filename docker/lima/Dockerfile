@@ -1,4 +1,4 @@
-FROM quay.io/pacbio/pb_wdl_base@sha256:ef224ec6b77c959baf24bb3c06189acfc62300af92e1e74d311e281735749c56
+FROM quay.io/pacbio/pb_wdl_base@sha256:1fa8b22abd2e32afe18cb2ff41dd0426d813a0450515efc0e626cf35f5658af3
 
 LABEL maintainer="Billy Rowell <wrowell@pacb.com>"
 
