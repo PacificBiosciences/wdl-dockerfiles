@@ -1,13 +1,22 @@
-FROM quay.io/pacbio/pb_wdl_base@sha256:ef224ec6b77c959baf24bb3c06189acfc62300af92e1e74d311e281735749c56
-
-LABEL maintainer="Billy Rowell <wrowell@pacb.com>"
+FROM quay.io/pacbio/pb_wdl_base@sha256:fa70d211e884a7348b53ff0120eed1f8070f053dd4a1c4b0bfeec74e1a42c5b0
 
 ARG IMAGE_NAME
-ENV IMAGE_NAME "${IMAGE_NAME}"
 ARG IMAGE_TAG
-ENV IMAGE_TAG "${IMAGE_TAG}"
+ARG IMAGE_DESCRIPTION
+ARG IMAGE_VENDOR
+ARG IMAGE_URL
+ARG IMAGE_MAINTAINER
+
+LABEL org.opencontainers.image.title="${IMAGE_NAME}" \
+	org.opencontainers.image.description="${IMAGE_DESCRIPTION}" \
+	org.opencontainers.image.authors="${IMAGE_MAINTAINER}" \
+	org.opencontainers.image.vendor="${IMAGE_VENDOR}" \
+	org.opencontainers.image.url="${IMAGE_URL}" \
+	org.opencontainers.image.version="${IMAGE_TAG}"
 
 ARG LIMA_VERSION
 RUN wget https://github.com/PacificBiosciences/barcoding/releases/download/v${LIMA_VERSION}/lima.tar.gz \
 	&& tar --no-same-owner -zxvf lima.tar.gz --directory /usr/local/bin \
 	&& chmod +x /usr/local/bin/lima
+
+RUN lima --version

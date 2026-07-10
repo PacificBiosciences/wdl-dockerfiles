@@ -16,9 +16,10 @@ DOCKER_IMAGES := $(notdir $(patsubst %/,%,$(wildcard docker/*/)))
 # Each entry is: <name>:<source-registry>
 # ──────────────────────────────────────────────
 MIRROR_DEEPVARIANT_SRC     := google
+MIRROR_DEEPSOMATIC_SRC     := google
 MIRROR_GLNEXUS_SRC         := ghcr.io/dnanexus-rnd/
 
-MIRROR_IMAGES := deepvariant glnexus
+MIRROR_IMAGES := deepvariant deepsomatic glnexus
 
 # ──────────────────────────────────────────────
 # Phony declarations
@@ -93,6 +94,11 @@ mirror-deepvariant: ## Mirror google/deepvariant to REMOTE_REPO
 	$(call _require_remote_repo)
 	$(BUILD_SCRIPT) -s $(MIRROR_DEEPVARIANT_SRC) -d mirror/deepvariant -p -c $(REMOTE_REPO)
 	$(BUILD_SCRIPT) -s $(MIRROR_DEEPVARIANT_SRC) -d mirror/deepvariant_gpu -p -c $(REMOTE_REPO)
+
+mirror-deepsomatic: ## Mirror google/deepsomatic to REMOTE_REPO
+	$(call _require_remote_repo)
+	$(BUILD_SCRIPT) -s $(MIRROR_DEEPSOMATIC_SRC) -d mirror/deepsomatic -p -c $(REMOTE_REPO)
+	$(BUILD_SCRIPT) -s $(MIRROR_DEEPSOMATIC_SRC) -d mirror/deepsomatic_gpu -p -c $(REMOTE_REPO)
 
 mirror-glnexus: ## Mirror ghcr.io/dnanexus-rnd/glnexus to REMOTE_REPO
 	$(call _require_remote_repo)

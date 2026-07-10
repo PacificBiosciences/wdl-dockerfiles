@@ -14,11 +14,8 @@ LABEL org.opencontainers.image.title="${IMAGE_NAME}" \
 	org.opencontainers.image.url="${IMAGE_URL}" \
 	org.opencontainers.image.version="${IMAGE_TAG}"
 
-ARG OWL_VERSION
-RUN wget https://github.com/PacificBiosciences/owl/releases/download/v${OWL_VERSION}/owl-${OWL_VERSION}-linux-x86_64.tar.gz \
-	&& tar --no-same-owner -zxvf owl-${OWL_VERSION}-linux-x86_64.tar.gz --directory /opt \
-	&& rm owl-${OWL_VERSION}-linux-x86_64.tar.gz \
-	&& mv /opt/owl /usr/local/bin \
-	&& chmod +x /usr/local/bin/owl
+ARG PBSAMOA_VERSION
+RUN wget https://github.com/PacificBiosciences/pbsamoa/releases/download/${PBSAMOA_VERSION}/pbsamoa --directory-prefix /usr/local/bin/ \
+	&& chmod +x /usr/local/bin/pbsamoa
 
-RUN owl --version
+RUN pbsamoa || true
