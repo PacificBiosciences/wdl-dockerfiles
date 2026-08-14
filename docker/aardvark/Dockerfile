@@ -14,11 +14,10 @@ LABEL org.opencontainers.image.title="${IMAGE_NAME}" \
 	org.opencontainers.image.url="${IMAGE_URL}" \
 	org.opencontainers.image.version="${IMAGE_TAG}"
 
-ARG ISOCALL_VERSION
-RUN wget https://github.com/PacificBiosciences/isocall/releases/download/${ISOCALL_VERSION}/isocall-v${ISOCALL_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
-	&& tar --no-same-owner -zxvf isocall-v${ISOCALL_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
-	&& rm isocall-v${ISOCALL_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
-	&& mv isocall-v${ISOCALL_VERSION}-x86_64-unknown-linux-gnu/isocall /usr/local/bin/ \
-	&& chmod +x /usr/local/bin/isocall
+ARG AARDVARK_VERSION
+RUN wget https://github.com/PacificBiosciences/aardvark/releases/download/v${AARDVARK_VERSION}/aardvark-v${AARDVARK_VERSION}-x86_64-unknown-linux-gnu.tar.gz && \
+	tar --no-same-owner -zxvf aardvark-v${AARDVARK_VERSION}-x86_64-unknown-linux-gnu.tar.gz --directory /opt && \
+	rm aardvark-v${AARDVARK_VERSION}-x86_64-unknown-linux-gnu.tar.gz
+RUN ln -s /opt/aardvark-v${AARDVARK_VERSION}-x86_64-unknown-linux-gnu/aardvark /usr/local/bin/
 
-RUN isocall --version
+RUN aardvark --version
