@@ -14,10 +14,10 @@ LABEL org.opencontainers.image.title="${IMAGE_NAME}" \
 	org.opencontainers.image.url="${IMAGE_URL}" \
 	org.opencontainers.image.version="${IMAGE_TAG}"
 
-ARG PARAPHASE_VERSION
-RUN wget https://github.com/PacificBiosciences/paraphase/releases/download/v${PARAPHASE_VERSION}/paraphase-v${PARAPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
-	&& tar --no-same-owner -zxvf paraphase-v${PARAPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz --directory /opt \
-	&& rm paraphase-v${PARAPHASE_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
-	&& ln -s /opt/paraphase-v${PARAPHASE_VERSION}-x86_64-unknown-linux-gnu/paraphase /usr/local/bin/
+ARG FIBERTOOLS_VERSION
+RUN wget https://github.com/fiberseq/fibertools-rs/releases/download/v${FIBERTOOLS_VERSION}/fibertools-rs-x86_64-unknown-linux-gnu.tar.xz && \
+	tar --no-same-owner -Jxvf fibertools-rs-x86_64-unknown-linux-gnu.tar.xz --directory /opt && \
+	rm fibertools-rs-x86_64-unknown-linux-gnu.tar.xz
+RUN ln -s /opt/fibertools-rs-x86_64-unknown-linux-gnu/ft /usr/local/bin/
 
-RUN paraphase --version
+RUN ft --version
