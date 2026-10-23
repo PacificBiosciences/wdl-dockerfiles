@@ -75,6 +75,8 @@ The script works with [podman](https://podman.io/), [docker](https://www.docker.
 
 Images are built and pulled for `linux/amd64` by default, including on Apple Silicon. To override, pass `-a <platform>` or set `CONTAINER_PLATFORM`.
 
+When pushing (`-p`) for a platform other than `linux/amd64`, the script first checks with crane that every base image in the Dockerfile is published for that platform. If any is not, it stops before building. Engines can otherwise silently build on a base image for the wrong platform and label the result with the requested one.
+
 Both environment variables also work through `make`, e.g. `CONTAINER_ENGINE=container make build-hifiasm`.
 
 ### Image digests

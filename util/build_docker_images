@@ -74,6 +74,45 @@ push_image() {
   fi
 }
 
+# Exit unless every base image in the Dockerfile is published for CONTAINER_PLATFORM
+check_base_platform() {
+  local dockerfile="$1"
+  # shortcut: compares os/arch only, ignoring any variant (e.g. arm64/v8); compare variant too if we ever push variant-specific images
+  local want_os=${CONTAINER_PLATFORM%%/*}
+  local want_arch=${CONTAINER_PLATFORM#*/}
+  want_arch=${want_arch%%/*}
+  local stages=' scratch '
+  local base stage config os arch
+
+  if ! command -v crane >/dev/null; then
+    err "[ERROR] crane is required to check base images for platform [${CONTAINER_PLATFORM}] before pushing; install crane and try again"
+    exit 1
+  fi
+
+  while read -r base stage; do
+    if [[ "${stages}" != *" ${base} "* ]]; then
+      if [[ "${base}" == *'$'* ]]; then
+        err "[ERROR] Cannot check base image [${base}] in [${dockerfile}] for platform [${CONTAINER_PLATFORM}]; variables in FROM are not supported"
+        exit 1
+      fi
+
+      # For a single-platform image, crane ignores --platform, so compare the config rather than trusting the exit code
+      if ! config=$(crane config --platform "${CONTAINER_PLATFORM}" "${base}"); then
+        err "[ERROR] Could not read base image [${base}] in [${dockerfile}] for platform [${CONTAINER_PLATFORM}]"
+        exit 1
+      fi
+      os=$(grep -m 1 -o '"os": *"[^"]*"' <<<"${config}" | cut -d '"' -f 4) || true
+      arch=$(grep -m 1 -o '"architecture": *"[^"]*"' <<<"${config}" | cut -d '"' -f 4) || true
+      if [[ "${os}/${arch}" != "${want_os}/${want_arch}" ]]; then
+        err "[ERROR] Base image [${base}] in [${dockerfile}] is ${os}/${arch}, not available for platform [${CONTAINER_PLATFORM}]"
+        exit 1
+      fi
+      log "Base image [${base}] is available for platform [${CONTAINER_PLATFORM}]"
+    fi
+    stages+="${stage} "
+  done < <(awk 'tolower($1) == "from" { i = 2; while ($i ~ /^--/) i++; print $i, (tolower($(i + 1)) == "as" ? $(i + 2) : "") }' "${dockerfile}")
+}
+
 print_digests() {
   if [[ -s "${DIGEST_FILE}" ]]; then
     log "Pushed image digests:"
@@ -146,6 +185,11 @@ build_docker_image() {
     fi
 
     tagged_image="${CONTAINER_REGISTRY:+"${CONTAINER_REGISTRY}/"}${IMAGE_NAME}:${IMAGE_TAG}"
+    # Engines may silently build on a base image for the wrong platform; check before building an image we'll push
+    if [[ "${PUSH_IMAGES}" == 'true' ]] && [[ "${CONTAINER_PLATFORM}" != "${DEFAULT_CONTAINER_PLATFORM}" ]]; then
+      check_base_platform "${dockerfile}"
+    fi
+
     log "Building ${tagged_image}"
 
     "${CONTAINER_ENGINE}" build \
