@@ -7,7 +7,7 @@ set -eEuo pipefail
 DEFAULT_DOCKER_CONTEXT_DIR=$(readlink -f "$(dirname "$0")")
 
 usage() {
-cat << EOF
+  cat <<EOF
 
   Recursively build and tag docker images in a directory.
   Docker definitions are discovered by identifying build.env files in the docker_context_dir. build.env must define at minimum IMAGE_NAME and IMAGE_TAG variables.
@@ -100,8 +100,8 @@ build_docker_image() {
 
       log "Generating populated conda environment [${populated_conda_environment}]"
       envsubst \
-        < "${conda_environment_template}" \
-        > "${populated_conda_environment}"
+        <"${conda_environment_template}" \
+        >"${populated_conda_environment}"
     fi
 
     tagged_image="${CONTAINER_REGISTRY:+"${CONTAINER_REGISTRY}/"}${IMAGE_NAME}:${IMAGE_TAG}"
@@ -168,31 +168,37 @@ pull_docker_image() {
     docker tag "${tagged_source_image}" "${tagged_dest_image}"
 
     if [[ "${PUSH_IMAGES}" == 'true' ]]; then
-        if [[ -n "${CONTAINER_REGISTRY:-}" ]]; then
-          log "Pushing [${tagged_dest_image}]"
-          docker push "${tagged_dest_image}"
+      if [[ -n "${CONTAINER_REGISTRY:-}" ]]; then
+        log "Pushing [${tagged_dest_image}]"
+        docker push "${tagged_dest_image}"
 
-          if [[ "${REMOVE_LOCAL_IMAGES}" == 'true' ]]; then
-            log "Removing pushed images"
-            docker image rm "${tagged_source_image}" "${tagged_dest_image}"
-          fi
-        else
-          err "[ERROR] Push images requested, but target container registry not set; set using '-c container_registry'"
-          exit 1
+        if [[ "${REMOVE_LOCAL_IMAGES}" == 'true' ]]; then
+          log "Removing pushed images"
+          docker image rm "${tagged_source_image}" "${tagged_dest_image}"
         fi
+      else
+        err "[ERROR] Push images requested, but target container registry not set; set using '-c container_registry'"
+        exit 1
+      fi
     fi
   )
 }
 
 while getopts "hd:c:ps:r" OPTION; do
   case $OPTION in
-    h) usage; exit ;;
-    d) DOCKER_CONTEXT_DIR=$OPTARG ;;
-    c) CONTAINER_REGISTRY=$OPTARG;;
-    p) PUSH_IMAGES='true' ;;
-    s) SOURCE_REGISTRY=$OPTARG ;;
-    r) REMOVE_LOCAL_IMAGES='true' ;;
-    \?) usage; exit ;;
+  h)
+    usage
+    exit
+    ;;
+  d) DOCKER_CONTEXT_DIR=$OPTARG ;;
+  c) CONTAINER_REGISTRY=$OPTARG ;;
+  p) PUSH_IMAGES='true' ;;
+  s) SOURCE_REGISTRY=$OPTARG ;;
+  r) REMOVE_LOCAL_IMAGES='true' ;;
+  \?)
+    usage
+    exit
+    ;;
   esac
 done
 
@@ -217,4 +223,4 @@ while read -r build_env_file; do
   else
     build_docker_image "${build_env_file}"
   fi
-done <<< "${IMAGES_TO_BUILD}"
+done <<<"${IMAGES_TO_BUILD}"
