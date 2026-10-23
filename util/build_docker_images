@@ -1,10 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Recursively build and tag docker images in a directory
+# Supports podman, docker, and Apple container; keep bash 3.2-compatible for macOS
 
 set -eEuo pipefail
 
 DEFAULT_DOCKER_CONTEXT_DIR=$(readlink -f "$(dirname "$0")")
+DEFAULT_CONTAINER_PLATFORM='linux/amd64'
 
 usage() {
   cat <<EOF
@@ -30,6 +32,13 @@ usage() {
 
     $(tput bold)-r$(tput sgr0)  Remove local images following push
 
+    $(tput bold)-e$(tput sgr0)  Container engine: podman, docker, or container (Apple). Can also be set with the CONTAINER_ENGINE environment variable.
+        Default: the first of podman, docker, container found on PATH.
+
+    $(tput bold)-a$(tput sgr0)  Platform to build or pull images for. Can also be set with the CONTAINER_PLATFORM environment variable [${DEFAULT_CONTAINER_PLATFORM}]
+
+  After pushing, the remote sha256 digest of each image is looked up (using crane if available) and printed in a summary.
+
 EOF
 }
 
@@ -39,6 +48,38 @@ log() {
 
 err() {
   echo "$(tput bold)$(tput setaf 203)[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@$(tput sgr0)" >&2
+}
+
+# Push an image, then record its digest as reported by the remote registry
+push_image() {
+  local image="$1"
+  local digest=''
+
+  "${CONTAINER_ENGINE}" image push "${image}"
+
+  if command -v crane >/dev/null; then
+    digest=$(crane digest "${image}") || true
+  fi
+  if [[ -z "${digest}" ]] && [[ "${CONTAINER_ENGINE}" != 'container' ]]; then
+    # RepoDigests is populated by the push; pick the entry for this repository
+    digest=$("${CONTAINER_ENGINE}" image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "${image}" |
+      grep -m 1 "^${image%:*}@" | cut -d '@' -f 2) || true
+  fi
+
+  if [[ -n "${digest}" ]]; then
+    log "Pushed ${image}@${digest}"
+    echo "${image}@${digest}" >>"${DIGEST_FILE}"
+  else
+    err "[WARN] Could not determine remote digest for [${image}]; install crane to enable digest lookup"
+  fi
+}
+
+print_digests() {
+  if [[ -s "${DIGEST_FILE}" ]]; then
+    log "Pushed image digests:"
+    cat "${DIGEST_FILE}"
+  fi
+  rm -f "${DIGEST_FILE}"
 }
 
 build_docker_image() {
@@ -107,8 +148,8 @@ build_docker_image() {
     tagged_image="${CONTAINER_REGISTRY:+"${CONTAINER_REGISTRY}/"}${IMAGE_NAME}:${IMAGE_TAG}"
     log "Building ${tagged_image}"
 
-    docker build \
-      --rm \
+    "${CONTAINER_ENGINE}" build \
+      --platform "${CONTAINER_PLATFORM}" \
       "${build_args[@]}" \
       -t "${tagged_image}" \
       -f "${dockerfile}" \
@@ -117,11 +158,11 @@ build_docker_image() {
     if [[ "${PUSH_IMAGES}" == 'true' ]]; then
       if [[ -n "${CONTAINER_REGISTRY:-}" ]]; then
         log "Pushing ${tagged_image}"
-        docker push "${tagged_image}"
+        push_image "${tagged_image}"
 
         if [[ "${REMOVE_LOCAL_IMAGES}" == 'true' ]]; then
           log "Removing pushed image"
-          docker image rm "${tagged_image}"
+          "${CONTAINER_ENGINE}" image rm "${tagged_image}"
         fi
       else
         err "[ERROR] Push images requested, but target container registry not set; set using '-c container_registry'"
@@ -133,6 +174,7 @@ build_docker_image() {
 
 pull_docker_image() {
   local build_env_file="$1"
+  local docker_context_dir=$(dirname "${build_env_file}")
 
   (
     # Ensure we're pulling these variables from the build_env_file
@@ -160,21 +202,21 @@ pull_docker_image() {
     tagged_source_image="${SOURCE_REGISTRY:+"${SOURCE_REGISTRY}/"}${IMAGE_NAME}:${IMAGE_TAG}"
 
     log "Pulling ${tagged_source_image}"
-    docker pull "${tagged_source_image}"
+    "${CONTAINER_ENGINE}" image pull --platform "${CONTAINER_PLATFORM}" "${tagged_source_image}"
 
     tagged_dest_image="${CONTAINER_REGISTRY:+"${CONTAINER_REGISTRY}/"}${IMAGE_NAME}:${IMAGE_TAG}"
 
     log "Tagging [${tagged_source_image}] as [${tagged_dest_image}]"
-    docker tag "${tagged_source_image}" "${tagged_dest_image}"
+    "${CONTAINER_ENGINE}" image tag "${tagged_source_image}" "${tagged_dest_image}"
 
     if [[ "${PUSH_IMAGES}" == 'true' ]]; then
       if [[ -n "${CONTAINER_REGISTRY:-}" ]]; then
         log "Pushing [${tagged_dest_image}]"
-        docker push "${tagged_dest_image}"
+        push_image "${tagged_dest_image}"
 
         if [[ "${REMOVE_LOCAL_IMAGES}" == 'true' ]]; then
           log "Removing pushed images"
-          docker image rm "${tagged_source_image}" "${tagged_dest_image}"
+          "${CONTAINER_ENGINE}" image rm "${tagged_source_image}" "${tagged_dest_image}"
         fi
       else
         err "[ERROR] Push images requested, but target container registry not set; set using '-c container_registry'"
@@ -184,7 +226,7 @@ pull_docker_image() {
   )
 }
 
-while getopts "hd:c:ps:r" OPTION; do
+while getopts "hd:c:ps:re:a:" OPTION; do
   case $OPTION in
   h)
     usage
@@ -195,6 +237,8 @@ while getopts "hd:c:ps:r" OPTION; do
   p) PUSH_IMAGES='true' ;;
   s) SOURCE_REGISTRY=$OPTARG ;;
   r) REMOVE_LOCAL_IMAGES='true' ;;
+  e) CONTAINER_ENGINE=$OPTARG ;;
+  a) CONTAINER_PLATFORM=$OPTARG ;;
   \?)
     usage
     exit
@@ -206,8 +250,41 @@ DOCKER_CONTEXT_DIR=${DOCKER_CONTEXT_DIR:-"${DEFAULT_DOCKER_CONTEXT_DIR}"}
 PUSH_IMAGES=${PUSH_IMAGES:-'false'}
 SOURCE_REGISTRY=${SOURCE_REGISTRY:-}
 REMOVE_LOCAL_IMAGES=${REMOVE_LOCAL_IMAGES:-'false'}
+CONTAINER_PLATFORM=${CONTAINER_PLATFORM:-"${DEFAULT_CONTAINER_PLATFORM}"}
 
-readonly DOCKER_CONTEXT_DIR CONTAINER_REGISTRY PUSH_IMAGES SOURCE_REGISTRY REMOVE_LOCAL_IMAGES
+# Podman first; on some hosts docker is a podman shim
+if [[ -z "${CONTAINER_ENGINE:-}" ]]; then
+  for engine in podman docker container; do
+    if command -v "${engine}" >/dev/null; then
+      CONTAINER_ENGINE=${engine}
+      break
+    fi
+  done
+fi
+case "${CONTAINER_ENGINE:-}" in
+podman | docker | container) ;;
+'')
+  err "[ERROR] No container engine found; install podman, docker, or container"
+  exit 1
+  ;;
+*)
+  err "[ERROR] Unsupported container engine [${CONTAINER_ENGINE}]; use podman, docker, or container"
+  exit 1
+  ;;
+esac
+if ! command -v "${CONTAINER_ENGINE}" >/dev/null; then
+  err "[ERROR] Container engine [${CONTAINER_ENGINE}] not found on PATH"
+  exit 1
+fi
+log "Using container engine [${CONTAINER_ENGINE}] for platform [${CONTAINER_PLATFORM}]"
+
+# Without this, docker buildx adds a provenance manifest, so the pushed digest is an index rather than the image
+export BUILDX_NO_DEFAULT_ATTESTATIONS=1
+
+DIGEST_FILE=$(mktemp)
+trap print_digests EXIT
+
+readonly DOCKER_CONTEXT_DIR CONTAINER_REGISTRY PUSH_IMAGES SOURCE_REGISTRY REMOVE_LOCAL_IMAGES CONTAINER_PLATFORM CONTAINER_ENGINE DIGEST_FILE
 
 IMAGES_TO_BUILD=$(find "${DOCKER_CONTEXT_DIR}" -type f -name build.env)
 if [[ "${#IMAGES_TO_BUILD}" -eq 0 ]]; then

@@ -69,6 +69,33 @@ These variables have special meanings when the Docker image is being built. † 
 
 Docker images can be built using the [build_docker_images](util/build_docker_images) utility script.
 
+### Container engine and platform
+
+The script works with [podman](https://podman.io/), [docker](https://www.docker.com/), or Apple's [container](https://github.com/apple/container). By default it uses the first of `podman`, `docker`, `container` found on `PATH`. To choose one, pass `-e <engine>` or set `CONTAINER_ENGINE`.
+
+Images are built and pulled for `linux/amd64` by default, including on Apple Silicon. To override, pass `-a <platform>` or set `CONTAINER_PLATFORM`.
+
+Both environment variables also work through `make`, e.g. `CONTAINER_ENGINE=container make build-hifiasm`.
+
+### Image digests
+
+After each push, the script looks up the image's `sha256` digest from the remote registry. It prints a summary of `registry/image:tag@sha256:...` references for use in commit and PR messages. The lookup uses [crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane). Without crane, podman and docker fall back to the digest recorded locally by the push; Apple `container` prints a warning and no digest.
+
+To install crane:
+
+- macOS: `brew install crane`
+- Linux: download the release tarball for your platform from [go-containerregistry releases](https://github.com/google/go-containerregistry/releases) and put `crane` on your `PATH`. If Go is installed, `go install github.com/google/go-containerregistry/cmd/crane@latest` also works.
+
+crane reads registry credentials from `~/.docker/config.json`. If your engine stores logins elsewhere, run `crane auth login <registry>` once.
+
+### Apple `container` prerequisites
+
+- The script uses `readlink -f`, which needs macOS 12.3 or later.
+- Start the service with `container system start`.
+- Building `linux/amd64` images on Apple Silicon needs Rosetta: `softwareupdate --install-rosetta`.
+- `container registry login` stores credentials in the macOS Keychain, which crane cannot read. Run `crane auth login <registry>` once so the digest lookup works.
+- Conda-based images need `envsubst`, which is not on stock macOS: `brew install gettext`.
+
 ### Build a single image
 
 ```bash
